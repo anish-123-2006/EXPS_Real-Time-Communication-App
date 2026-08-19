@@ -1,10 +1,9 @@
 "use client";
 
 import { Mic, MicOff } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 
 export function VideoGrid({ localStream, remoteStream }: { localStream: MediaStream | null; remoteStream: MediaStream | null }) {
-    const [isHovered, setIsHovered] = useState(false);
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -25,8 +24,6 @@ export function VideoGrid({ localStream, remoteStream }: { localStream: MediaStr
             {/* Local Video */}
             <div
                 className="relative bg-zinc-900 rounded-2xl overflow-hidden border-2 border-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.2)] aspect-video w-full group"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
             >
                 <video
                     ref={localVideoRef}

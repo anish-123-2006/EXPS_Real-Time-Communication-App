@@ -4,6 +4,23 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "../../lib/api";
 
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object" &&
+    (error as { response?: { data?: unknown } }).response !== null
+  ) {
+    const data = (error as { response?: { data?: { error?: unknown } } }).response?.data;
+    if (typeof data?.error === "string") {
+      return data.error;
+    }
+  }
+
+  return fallback;
+};
+
 export default function LoginPage() {
   const router = useRouter();
   
@@ -27,8 +44,8 @@ export default function LoginPage() {
       
       // 3. Redirect to the main dashboard/room selection page
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Login failed");
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Login failed"));
     }
   };
 
@@ -71,7 +88,7 @@ export default function LoginPage() {
         </form>
         
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account? <a href="/register" className="text-blue-600 hover:underline">Sign up</a>
+          Don&apos;t have an account? <a href="/register" className="text-blue-600 hover:underline">Sign up</a>
         </p>
       </div>
     </main>

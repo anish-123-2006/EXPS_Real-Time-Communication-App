@@ -2,6 +2,23 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import api from "@/lib/api";
 
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: { data?: unknown } }).response !== null
+    ) {
+        const data = (error as { response?: { data?: { error?: unknown } } }).response?.data;
+        if (typeof data?.error === "string") {
+            return data.error;
+        }
+    }
+
+    return fallback;
+};
+
 export function AuthModal({ isOpen, onClose, onAuthSuccess }: { isOpen: boolean; onClose: () => void; onAuthSuccess?: () => void }) {
     const [isLogin, setIsLogin] = useState(true);
     const [name, setName] = useState("");
@@ -29,8 +46,8 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: { isOpen: boolean;
             }
             if (onAuthSuccess) onAuthSuccess();
             onClose();
-        } catch (err: any) {
-            setError(err.response?.data?.error || "Authentication failed.");
+        } catch (err: unknown) {
+            setError(getApiErrorMessage(err, "Authentication failed."));
         } finally {
             setLoading(false);
         }
@@ -60,7 +77,7 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: { isOpen: boolean;
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-zinc-400 mb-1">Password</label>
-                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all" placeholder="••••••••" />
+                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all" placeholder="••••••••" />
                         </div>
                         <button disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors mt-6 shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] disabled:opacity-50">
                             {loading ? "Please wait..." : (isLogin ? "Sign In" : "Sign Up")}
@@ -70,7 +87,7 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: { isOpen: boolean;
                     <div className="mt-6 text-center">
                         {isLogin ? (
                             <p className="text-zinc-400 text-sm">
-                                Don't have an account?{" "}
+                                Don&apos;t have an account?{" "}
                                 <button onClick={() => setIsLogin(false)} className="text-blue-400 hover:text-blue-300 font-medium transition-colors">Sign up here</button>
                             </p>
                         ) : (

@@ -4,6 +4,23 @@ import api from "@/lib/api";// Importing our custom mailman!
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object" &&
+    (error as { response?: { data?: unknown } }).response !== null
+  ) {
+    const data = (error as { response?: { data?: { error?: unknown } } }).response?.data;
+    if (typeof data?.error === "string") {
+      return data.error;
+    }
+  }
+
+  return fallback;
+};
+
 export default  function RegisterPage(){
 const router = useRouter();
 
@@ -29,9 +46,9 @@ try{
 
     //2. if successful, redirsct them to the login page
     router.push("/login");
-} catch(err:any){
+} catch(err: unknown){
 //3. if its fails (likes id the email is already taken), show an error
-setError(err.response?.data?.error || "Registration failed");
+setError(getApiErrorMessage(err, "Registration failed"));
 
 }
 }
@@ -74,7 +91,8 @@ return (
               name="password"
               onChange={handleChange}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-900"
-              required 
+              required
+              minLength={8}
             />
           </div>
 

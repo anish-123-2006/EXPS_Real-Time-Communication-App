@@ -2,25 +2,50 @@
 
 import { ArrowLeft, Clock, Copy, CopyCheck } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { VideoGrid } from "@/components/video-grid";
 import { CollaborationSidebar } from "@/components/collaboration-sidebar";
 import { BottomDock } from "@/components/bottom-dock";
 import { useWebRTC } from "@/lib/useWebRTC";
+import api from "@/lib/api";
 
-export default function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
-  const resolvedParams = use(params);
-  const roomId = resolvedParams.roomId;
+export default function RoomPage() {
+  const params = useParams<{ roomId: string }>();
+  const roomId = params.roomId;
   const router = useRouter();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [time, setTime] = useState("00:00");
   const [isCopied, setIsCopied] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<"whiteboard" | "files">("whiteboard");
+  const [roomReady, setRoomReady] = useState(false);
+  const [accessError, setAccessError] = useState("");
 
   // Use our backend WebRTC logic hook
-  const { localStream, remoteStream, isVideoEnabled, isAudioEnabled, toggleVideo, toggleAudio, startScreenShare, leaveRoom } = useWebRTC(roomId);
+  const { socket, localStream, remoteStream, isVideoEnabled, isAudioEnabled, toggleVideo, toggleAudio, startScreenShare, leaveRoom } = useWebRTC(roomId, roomReady);
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.replace("/login");
+      return;
+    }
+
+    api.get(`/rooms/${encodeURIComponent(roomId)}`)
+      .then(() => setRoomReady(true))
+      .catch((error: unknown) => {
+        const status = typeof error === "object" && error !== null && "response" in error
+          ? (error as { response?: { status?: number } }).response?.status
+          : undefined;
+        if (status === 401 || status === 403) {
+          localStorage.removeItem("token");
+          router.replace("/login");
+          return;
+        }
+        setAccessError("This room does not exist or is no longer available.");
+      });
+  }, [roomId, router]);
 
   useEffect(() => {
     const start = Date.now();
@@ -40,8 +65,12 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   };
 
   const toggleSidebar = (tab: "whiteboard" | "files") => {
-    setIsSidebarOpen((prev) => !prev);
-    // In a real implementation you would also set the Active Tab inside the sidebar
+    const nextTab = tab;
+    setIsSidebarOpen((prev) => {
+      if (!prev) return true;
+      return sidebarTab === nextTab ? false : true;
+    });
+    setSidebarTab(nextTab);
   };
 
   const handleScreenShare = async () => {
@@ -53,6 +82,14 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     leaveRoom();
     router.push("/");
   };
+
+  if (accessError) {
+    return <main className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center text-zinc-100"><div><p className="text-xl font-semibold">{accessError}</p><Link href="/dashboard" className="mt-4 inline-block text-blue-400 hover:text-blue-300">Back to your rooms</Link></div></main>;
+  }
+
+  if (!roomReady) {
+    return <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-400">Checking room access…</main>;
+  }
 
   return (
     <div className="flex flex-col h-screen w-full bg-zinc-950 text-zinc-50 overflow-hidden font-sans selection:bg-blue-500/30">
@@ -95,6 +132,10 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         <CollaborationSidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
+          roomId={roomId}
+          activeTab={sidebarTab}
+          onTabChange={setSidebarTab}
+          socket={socket}
         />
       </div>
 

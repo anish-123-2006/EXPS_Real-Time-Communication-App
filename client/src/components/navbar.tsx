@@ -2,6 +2,7 @@
 import { User, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AuthModal } from "./auth-modal";
+import Link from "next/link";
 
 export function Navbar() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,17 +10,20 @@ export function Navbar() {
     const [userName, setUserName] = useState("");
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setIsAuthenticated(true);
-            // Fetch user info
-            import('@/lib/api').then(({ default: api }) => {
-                api.get('/me').then(res => {
-                    setUserName(res.data.name || res.data.email || "");
-                }).catch(() => { });
-            });
-        }
+        setIsAuthenticated(Boolean(localStorage.getItem("token")));
     }, []);
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            return;
+        }
+
+        import("@/lib/api").then(({ default: api }) => {
+            api.get("/me").then((res) => {
+                setUserName(res.data.name || res.data.email || "");
+            }).catch(() => { });
+        });
+    }, [isAuthenticated]);
 
     const handleAuthSuccess = () => {
         setIsAuthenticated(true);
@@ -40,12 +44,12 @@ export function Navbar() {
         <>
             <nav className="w-full border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-40">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3 font-semibold text-xl tracking-tight text-white cursor-pointer group">
+                    <Link href="/" className="flex items-center gap-3 font-semibold text-xl tracking-tight text-white cursor-pointer group">
                         <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
                             <div className="w-3 h-3 bg-white rounded-full"></div>
                         </div>
                         Meshly
-                    </div>
+                    </Link>
 
                     <div className="flex items-center gap-4">
                         {isAuthenticated ? (
@@ -56,7 +60,7 @@ export function Navbar() {
                                     </div>
                                     <div className="flex-col hidden sm:flex pr-2">
                                         <span className="text-sm font-medium text-zinc-200 leading-tight">{userName || "User"}</span>
-                                        <span className="text-xs text-zinc-500 leading-tight">Pro Plan</span>
+                                        <span className="text-xs text-zinc-500 leading-tight">Signed in</span>
                                     </div>
                                 </div>
                                 <button onClick={handleLogout} className="p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-900 rounded-xl transition-all" title="Log Out">

@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { API_URL } from './runtime-config';
 
 //create a pre-configuresd instance of axios
 const api=axios.create({
-    baseURL:'http://localhost:5000'
+    baseURL: API_URL
 })
 
 // this automatically attaches the jwt wristband to every request

@@ -15,28 +15,42 @@ import { Server } from 'socket.io';
 dotenv.config();
 const app = express();
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+    throw new Error("JWT_SECRET must be set before starting the server.");
+}
+
+const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:3000")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const corsOptions = {
+    origin(origin: string | undefined, callback: (error: Error | null, allowed?: boolean) => void) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+            return;
+        }
+        callback(new Error("Origin is not allowed by CORS"));
+    },
+    credentials: true,
+};
+
 // create the master HTTP server and give it our express app
 const server=http.createServer(app);
 
 //attach socket.io to the master server, and configure CORS just like we did for express
 const io=new Server(server,{
-    cors:{
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"]
-    }
+    cors: { ...corsOptions, methods: ["GET", "POST"] }
 })
 
 // Allow requests from our Next.js frontend
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true
-}));
+app.use(cors(corsOptions));
 
 // 2. Safely grab the port from the environment
 const PORT = process.env.PORT || 5000;
 
 // 3. Register Middleware
-app.use(cors());
 app.use(express.json());
 
 app.get('/health', (req: Request, res: Response) => {
@@ -91,13 +105,17 @@ app.get('/me', authenticatetoken, async (req: AuthRequest, res: Response): Promi
 // POST route to create a new room
 app.post('/rooms',authenticatetoken, async (req: AuthRequest, res: Response): Promise<any> => {
     try {
-        // We can optionally accept a title from the frontend
         const { title } = req.body;
+        const normalizedTitle = typeof title === "string" ? title.trim() : "";
+
+        if (normalizedTitle.length > 120) {
+            return res.status(400).json({ error: "Room title must be 120 characters or fewer." });
+        }
 
         // Create the room in the database
         const newRoom = await prisma.room.create({
             data: {
-                title: title || "Untitled Room",
+                title: normalizedTitle || "Untitled room",
                 // Look at this magic! The Bouncer verified the JWT and attached the userId to the request. 
                 // We use it here to link the room to the user who clicked the button!
                 hostId: req.userId as string, 
@@ -108,6 +126,28 @@ app.post('/rooms',authenticatetoken, async (req: AuthRequest, res: Response): Pr
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to create room" });
+    }
+});
+
+app.get('/rooms/:roomId', authenticatetoken, async (req: AuthRequest, res: Response): Promise<any> => {
+    try {
+        const roomId = req.params.roomId;
+        if (typeof roomId !== "string") {
+            return res.status(400).json({ error: "Invalid room ID." });
+        }
+        const room = await prisma.room.findUnique({
+            where: { id: roomId },
+            select: { id: true, title: true, hostId: true, createdAt: true },
+        });
+
+        if (!room) {
+            return res.status(404).json({ error: "Room not found." });
+        }
+
+        return res.status(200).json(room);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Failed to fetch room." });
     }
 });
 
@@ -130,6 +170,17 @@ app.post('/users', async (req: Request, res: Response) => {
         // We will read the email, name, and password from the incoming request body
         const { email, name, password } = req.body;
 
+        const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+        const normalizedName = typeof name === "string" ? name.trim() : "";
+        if (!normalizedEmail || !normalizedName || typeof password !== "string" || password.length < 8) {
+            return res.status(400).json({ error: "Name, a valid email, and a password of at least 8 characters are required." });
+        }
+
+        const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+        if (existingUser) {
+            return res.status(409).json({ error: "An account with that email already exists." });
+        }
+
         // 1. Generate the hash (The "Meat Grinder")
         // The '10' is the "salt rounds" - it determines how mathematically complex the hash is.
         // 10 is the industry standard balance between security and server speed.
@@ -140,8 +191,8 @@ app.post('/users', async (req: Request, res: Response) => {
         // 2. Save the user with the HASHED password, not the raw one
         const newUser = await prisma.user.create({
             data: {
-                email: email,
-                name: name,
+                email: normalizedEmail,
+                name: normalizedName,
                 password: hashedPassword,// <-- Saving the gibberish!
             }
         });
@@ -163,10 +214,15 @@ app.post('/users', async (req: Request, res: Response) => {
 app.post('/login', async (req: Request, res: Response): Promise<any> => {
     try {
         const { email, password } = req.body;
+        const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+
+        if (!normalizedEmail || typeof password !== "string") {
+            return res.status(400).json({ error: "Email and password are required." });
+        }
 
         // 1. Check if a user with this email actually exists
         const user = await prisma.user.findUnique({
-            where: { email: email }
+            where: { email: normalizedEmail }
         });
 
         if (!user) {
@@ -185,7 +241,7 @@ app.post('/login', async (req: Request, res: Response): Promise<any> => {
         // We embed their user ID inside the token so we know exactly who is holding it
         const token = jwt.sign(
             { userId: user.id },
-            process.env.JWT_SECRET as string,
+            jwtSecret,
             { expiresIn: '24h' } // The wristband expires in 24 hours
         );
 
@@ -202,12 +258,37 @@ app.post('/login', async (req: Request, res: Response): Promise<any> => {
 
 
 // The WebScocket Phone SwitchBoard
+io.use((socket, next) => {
+    const token = socket.handshake.auth?.token;
+    if (typeof token !== "string") {
+        next(new Error("Authentication required"));
+        return;
+    }
+
+    try {
+        socket.data.userId = (jwt.verify(token, jwtSecret) as { userId: string }).userId;
+        next();
+    } catch {
+        next(new Error("Invalid or expired token"));
+    }
+});
+
 io.on("connection",(socket)=>{
     //this run every time a users nextjs browser opens a websocket line
     console.log(`a user connected with socket id: ${socket.id}`);
 
     //listen for the custom "join-room" event
-    socket.on("join-room",(roomId)=>{
+    socket.on("join-room", async (roomId: unknown) => {
+        if (typeof roomId !== "string" || !roomId) {
+            socket.emit("room-error", "Invalid room.");
+            return;
+        }
+
+        const room = await prisma.room.findUnique({ where: { id: roomId }, select: { id: true } });
+        if (!room) {
+            socket.emit("room-error", "Room not found.");
+            return;
+        }
 
         //the built in magic: put the user in the soundproof hotel room
         socket.join(roomId);
@@ -250,6 +331,30 @@ io.on("connection",(socket)=>{
         io.to(targetUserId).emit("receive-ice-candidate", {
             candidate
         });
+    });
+
+    socket.on("whiteboard-draw", ({ roomId, segment }) => {
+        if (!roomId || !segment) {
+            return;
+        }
+
+        socket.to(roomId).emit("whiteboard-draw", { segment });
+    });
+
+    socket.on("whiteboard-clear", ({ roomId }) => {
+        if (!roomId) {
+            return;
+        }
+
+        socket.to(roomId).emit("whiteboard-clear");
+    });
+
+    socket.on("file-share", ({ roomId, file }) => {
+        if (!roomId || !file) {
+            return;
+        }
+
+        socket.to(roomId).emit("file-share", { file });
     });
     
 

@@ -1,58 +1,80 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_URL, TURN_CREDENTIAL, TURN_URL, TURN_USERNAME } from './runtime-config';
 
 const ICE_SERVERS = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
+        { urls: 'stun:stun1.l.google.com:19302' },
+        ...(TURN_URL && TURN_USERNAME && TURN_CREDENTIAL
+            ? [{ urls: TURN_URL, username: TURN_USERNAME, credential: TURN_CREDENTIAL }]
+            : []),
     ]
 };
 
 export function useWebRTC(roomId: string, enabled: boolean = true) {
     const [localStream, setLocalStream] = useState<MediaStream | null>(null);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-
+    const [socket, setSocket] = useState<Socket | null>(null);
     const socketRef = useRef<Socket | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+    const localStreamRef = useRef<MediaStream | null>(null);
 
     const [isVideoEnabled, setIsVideoEnabled] = useState(true);
     const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
-    // Initialize Socket Component
+    useEffect(() => {
+        localStreamRef.current = localStream;
+    }, [localStream]);
+
     useEffect(() => {
         if (!enabled) return;
 
-        // Connect to Socket.io server
-        socketRef.current = io('http://localhost:5000');
-        const socket = socketRef.current;
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-        const setupMedia = async () => {
+        let active = true;
+
+        const setupMediaAndConnect = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                if (!active) {
+                    stream.getTracks().forEach(track => track.stop());
+                    return;
+                }
                 setLocalStream(stream);
 
-                // Notify server to join room
-                socket.emit('join-room', roomId);
+                // Only connect to socket AFTER media stream is established 
+                // to prevent missing offer/answer signaling out of order.
+                const sock = io(SOCKET_URL, { auth: { token } });
+                socketRef.current = sock;
+                setSocket(sock);
+
+                sock.on("connect", () => sock.emit("join-room", roomId));
             } catch (err) {
                 console.error("Failed to get local stream", err);
             }
         };
 
-        setupMedia();
+        setupMediaAndConnect();
 
         return () => {
-            localStream?.getTracks().forEach(track => track.stop());
+            active = false;
+            localStreamRef.current?.getTracks().forEach(track => track.stop());
+            localStreamRef.current = null;
+            setLocalStream(null);
+            setRemoteStream(null);
             peerConnectionRef.current?.close();
-            socket.disconnect();
+            peerConnectionRef.current = null;
+            socketRef.current?.disconnect();
+            socketRef.current = null;
+            setSocket(null);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [roomId, enabled]);
 
     // Peer Connection Handlers
     useEffect(() => {
-        if (!socketRef.current || !localStream) return;
-
-        const socket = socketRef.current;
+        if (!socket || !localStream) return;
 
         const createPeerConnection = (targetUserId: string) => {
             const pc = new RTCPeerConnection(ICE_SERVERS);
@@ -135,7 +157,7 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
             socket.off('receive-webrtc-answer');
             socket.off('receive-ice-candidate');
         };
-    }, [localStream, roomId]);
+    }, [localStream, socket]);
 
     const toggleVideo = useCallback(() => {
         if (localStream) {
@@ -183,12 +205,19 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
     }, [localStream]);
 
     const leaveRoom = useCallback(() => {
-        localStream?.getTracks().forEach(track => track.stop());
+        localStreamRef.current?.getTracks().forEach(track => track.stop());
+        localStreamRef.current = null;
+        setLocalStream(null);
+        setRemoteStream(null);
         peerConnectionRef.current?.close();
+        peerConnectionRef.current = null;
         socketRef.current?.disconnect();
-    }, [localStream]);
+        socketRef.current = null;
+        setSocket(null);
+    }, []);
 
     return {
+        socket,
         localStream,
         remoteStream,
         isVideoEnabled,

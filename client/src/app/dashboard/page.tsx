@@ -1,87 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import api from "@/lib/api";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "../../lib/api";
+import { getRoomId } from "@/lib/room-id";
 
 export default function DashboardPage() {
   const router = useRouter();
-  
-  // State for when a user wants to join a room that already exists
+  const [title, setTitle] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
   const [error, setError] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
-  // THIS IS YOUR PREDICTION CODE AT WORK!
-  const handleCreateRoom = async () => {
-    setError("");
-    try {
-      // 1. Ask the backend to create a room
-      const response = await api.post("/rooms", { title: "My Quick Meeting" });
-      
-      // 2. Grab the new ID from the database response
-      const newRoomId = response.data.id;
-      
-      // 3. Teleport the user to that specific room's URL
-      router.push(`/room/${newRoomId}`);
-    } catch (err) {
-      setError("Failed to create a new room. Are you logged in?");
-    }
+  useEffect(() => { if (!localStorage.getItem("token")) router.replace("/login"); }, [router]);
+
+  const handleCreateRoom = async (event: React.FormEvent) => {
+    event.preventDefault(); setError(""); setIsCreating(true);
+    try { const response = await api.post("/rooms", { title }); router.push(`/room/${response.data.id}`); }
+    catch { setError("Unable to create the room. Please sign in again and retry."); }
+    finally { setIsCreating(false); }
+  };
+  const handleJoinRoom = (event: React.FormEvent) => {
+    event.preventDefault(); const id = getRoomId(joinRoomId); if (id) router.push(`/room/${encodeURIComponent(id)}`);
   };
 
-  const handleJoinRoom = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (joinRoomId.trim()) {
-      // Teleport the user to the URL of the ID they typed in
-      router.push(`/room/${joinRoomId.trim()}`);
-    }
-  };
-
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Welcome to your Dashboard</h1>
-        
-        {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">{error}</div>}
-
-        <div className="grid md:grid-cols-2 gap-8">
-          
-          {/* LEFT SIDE: Create Room */}
-          <div className="flex flex-col items-center justify-center p-6 bg-blue-50 rounded-lg border border-blue-100">
-            <h2 className="text-xl font-semibold mb-4 text-blue-900">Start a Meeting</h2>
-            <p className="text-sm text-blue-700 mb-6 text-center">Create a new secure video room and invite others.</p>
-            <button 
-              onClick={handleCreateRoom}
-              className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded hover:bg-blue-700 transition shadow-md"
-            >
-              Create New Room
-            </button>
-          </div>
-
-          {/* RIGHT SIDE: Join Room */}
-          <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border border-gray-200">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">Join a Meeting</h2>
-            <p className="text-sm text-gray-600 mb-6 text-center">Enter a Room ID provided by your host.</p>
-            
-            <form onSubmit={handleJoinRoom} className="w-full flex flex-col gap-3">
-              <input 
-                type="text" 
-                placeholder="Paste Room ID here..."
-                value={joinRoomId}
-                onChange={(e) => setJoinRoomId(e.target.value)}
-                className="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 text-center font-mono"
-                required 
-              />
-              <button 
-                type="submit" 
-                className="w-full bg-gray-800 text-white font-bold py-3 px-4 rounded hover:bg-gray-900 transition shadow-md"
-              >
-                Join Room
-              </button>
-            </form>
-          </div>
-
-        </div>
-      </div>
-    </main>
-  );
+  return <main className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 text-zinc-50"><div className="w-full max-w-3xl rounded-2xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-2xl sm:p-8"><h1 className="text-center text-3xl font-bold">Your rooms</h1><p className="mt-2 text-center text-zinc-400">Start a meeting or join one with an invite link.</p>{error && <p role="alert" className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center text-sm text-red-300">{error}</p>}<div className="mt-8 grid gap-6 md:grid-cols-2"><form onSubmit={handleCreateRoom} className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-6"><h2 className="text-xl font-semibold">Start a meeting</h2><p className="mt-2 text-sm text-zinc-400">Give your room a recognizable name, then share the link.</p><label className="mt-5 block text-sm font-medium">Room name <span className="text-zinc-500">(optional)</span></label><input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} placeholder="Project planning" className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-white outline-none focus:ring-2 focus:ring-blue-500" /><button disabled={isCreating} className="mt-4 w-full rounded-lg bg-blue-600 py-2.5 font-semibold disabled:opacity-60">{isCreating ? "Creating…" : "Create room"}</button></form><form onSubmit={handleJoinRoom} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-6"><h2 className="text-xl font-semibold">Join a meeting</h2><p className="mt-2 text-sm text-zinc-400">Paste the room ID from an invite link.</p><label className="mt-5 block text-sm font-medium" htmlFor="room-id">Room ID</label><input id="room-id" value={joinRoomId} onChange={(event) => setJoinRoomId(event.target.value)} required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 font-mono text-sm text-white outline-none focus:ring-2 focus:ring-blue-500" /><button className="mt-4 w-full rounded-lg bg-zinc-700 py-2.5 font-semibold hover:bg-zinc-600">Join room</button></form></div></div></main>;
 }
