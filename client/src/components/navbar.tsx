@@ -1,11 +1,15 @@
 "use client";
+
 import { User, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AuthModal } from "./auth-modal";
 import Link from "next/link";
 
+type AuthMode = "login" | "register";
+
 export function Navbar() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authMode, setAuthMode] = useState<AuthMode>("login");
     const [isAuthOpen, setIsAuthOpen] = useState(false);
     const [userName, setUserName] = useState("");
 
@@ -14,28 +18,30 @@ export function Navbar() {
     }, []);
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            return;
-        }
-
+        if (!isAuthenticated) return;
         import("@/lib/api").then(({ default: api }) => {
             api.get("/me").then((res) => {
                 setUserName(res.data.name || res.data.email || "");
-            }).catch(() => { });
+            }).catch(() => {});
         });
     }, [isAuthenticated]);
 
+    const openAuth = (mode: AuthMode) => {
+        setAuthMode(mode);
+        setIsAuthOpen(true);
+    };
+
     const handleAuthSuccess = () => {
         setIsAuthenticated(true);
-        import('@/lib/api').then(({ default: api }) => {
-            api.get('/me').then(res => {
+        import("@/lib/api").then(({ default: api }) => {
+            api.get("/me").then((res) => {
                 setUserName(res.data.name || res.data.email || "");
-            }).catch(() => { });
+            }).catch(() => {});
         });
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem("token");
         setIsAuthenticated(false);
         setUserName("");
     };
@@ -46,7 +52,7 @@ export function Navbar() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-3 font-semibold text-xl tracking-tight text-white cursor-pointer group">
                         <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
-                            <div className="w-3 h-3 bg-white rounded-full"></div>
+                            <div className="w-3 h-3 bg-white rounded-full" />
                         </div>
                         Meshly
                     </Link>
@@ -70,13 +76,13 @@ export function Navbar() {
                         ) : (
                             <div className="flex items-center gap-3">
                                 <button
-                                    onClick={() => setIsAuthOpen(true)}
+                                    onClick={() => openAuth("login")}
                                     className="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
                                 >
                                     Log In
                                 </button>
                                 <button
-                                    onClick={() => setIsAuthOpen(true)}
+                                    onClick={() => openAuth("register")}
                                     className="px-5 py-2 text-sm font-medium bg-white text-zinc-950 rounded-lg hover:bg-zinc-200 transition-colors shadow-sm"
                                 >
                                     Sign Up
@@ -87,7 +93,12 @@ export function Navbar() {
                 </div>
             </nav>
 
-            <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} onAuthSuccess={handleAuthSuccess} />
+            <AuthModal
+                isOpen={isAuthOpen}
+                onClose={() => setIsAuthOpen(false)}
+                onAuthSuccess={handleAuthSuccess}
+                initialMode={authMode}
+            />
         </>
     );
 }
