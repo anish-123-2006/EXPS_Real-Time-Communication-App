@@ -1,10 +1,7 @@
 
-/**
- * Client
-**/
 
 import * as runtime from './runtime/client.js';
-import $Types = runtime.Types // general types
+import $Types = runtime.Types 
 import $Public = runtime.Types.Public
 import $Utils = runtime.Types.Utils
 import $Extensions = runtime.Types.Extensions
@@ -13,33 +10,9 @@ import $Result = runtime.Types.Result
 export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 
-/**
- * Model User
- * 
- */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
-/**
- * Model Room
- * 
- */
 export type Room = $Result.DefaultSelection<Prisma.$RoomPayload>
 
-/**
- * ##  Prisma Client ʲˢ
- *
- * Type-safe database client for TypeScript & Node.js
- * @example
- * ```
- * const prisma = new PrismaClient({
- *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
- * })
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
- * ```
- *
- *
- * Read more in our [docs](https://pris.ly/d/client).
- */
 export class PrismaClient<
   ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
   const U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
@@ -47,96 +20,23 @@ export class PrismaClient<
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
 
-    /**
-   * ##  Prisma Client ʲˢ
-   *
-   * Type-safe database client for TypeScript & Node.js
-   * @example
-   * ```
-   * const prisma = new PrismaClient({
-   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
-   * })
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
-   * ```
-   *
-   *
-   * Read more in our [docs](https://pris.ly/d/client).
-   */
 
   constructor(optionsArg ?: Prisma.PrismaClientConstructorArgs<ClientOptions>);
   $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
 
-  /**
-   * Connect with the database
-   */
   $connect(): $Utils.JsPromise<void>;
 
-  /**
-   * Disconnect from the database
-   */
   $disconnect(): $Utils.JsPromise<void>;
 
-/**
-   * Executes a prepared raw query and returns the number of affected rows.
-   * @example
-   * ```
-   * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
-   * ```
-   *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
-   */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
-  /**
-   * Executes a raw query and returns the number of affected rows.
-   * Susceptible to SQL injections, see documentation.
-   * @example
-   * ```
-   * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
-   * ```
-   *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
-   */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
-  /**
-   * Performs a prepared raw query and returns the `SELECT` data.
-   * @example
-   * ```
-   * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
-   * ```
-   *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
-   */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
-  /**
-   * Performs a raw query and returns the `SELECT` data.
-   * Susceptible to SQL injections, see documentation.
-   * @example
-   * ```
-   * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
-   * ```
-   *
-   * Read more in our [docs](https://pris.ly/d/raw-queries).
-   */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
 
-  /**
-   * Allows the running of a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
-   * @example
-   * ```
-   * const [george, bob, alice] = await prisma.$transaction([
-   *   prisma.user.create({ data: { name: 'George' } }),
-   *   prisma.user.create({ data: { name: 'Bob' } }),
-   *   prisma.user.create({ data: { name: 'Alice' } }),
-   * ])
-   * ```
-   * 
-   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
-   */
   $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
@@ -145,24 +45,8 @@ export class PrismaClient<
     extArgs: ExtArgs
   }>>
 
-      /**
-   * `prisma.user`: Exposes CRUD operations for the **User** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Users
-    * const users = await prisma.user.findMany()
-    * ```
-    */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
 
-  /**
-   * `prisma.room`: Exposes CRUD operations for the **Room** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Rooms
-    * const rooms = await prisma.room.findMany()
-    * ```
-    */
   get room(): Prisma.RoomDelegate<ExtArgs, ClientOptions>;
 }
 
@@ -171,23 +55,14 @@ export namespace Prisma {
 
   export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
-  /**
-   * Validator
-   */
   export import validator = runtime.Public.validator
 
-  /**
-   * Prisma Errors
-   */
   export import PrismaClientKnownRequestError = runtime.PrismaClientKnownRequestError
   export import PrismaClientUnknownRequestError = runtime.PrismaClientUnknownRequestError
   export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
   export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
   export import PrismaClientValidationError = runtime.PrismaClientValidationError
 
-  /**
-   * Re-export of sql-template-tag
-   */
   export import sql = runtime.sqltag
   export import empty = runtime.empty
   export import join = runtime.join
@@ -196,16 +71,10 @@ export namespace Prisma {
 
 
 
-  /**
-   * Decimal.js
-   */
   export import Decimal = runtime.Decimal
 
   export type DecimalJsLike = runtime.DecimalJsLike
 
-  /**
-  * Extensions
-  */
   export import Extension = $Extensions.UserArgs
   export import getExtensionContext = runtime.Extensions.getExtensionContext
   export import Args = $Public.Args
@@ -213,10 +82,6 @@ export namespace Prisma {
   export import Result = $Public.Result
   export import Exact = $Public.Exact
 
-  /**
-   * Prisma Client JS version: 7.9.1
-   * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
-   */
   export type PrismaVersion = {
     client: string
     engine: string
@@ -224,9 +89,6 @@ export namespace Prisma {
 
   export const prismaVersion: PrismaVersion
 
-  /**
-   * Utility Types
-   */
 
 
   export import Bytes = runtime.Bytes
@@ -237,68 +99,27 @@ export namespace Prisma {
   export import InputJsonArray = runtime.InputJsonArray
   export import InputJsonValue = runtime.InputJsonValue
 
-  /**
-   * Types of the values used to represent different kinds of `null` values when working with JSON fields.
-   *
-   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-   */
   namespace NullTypes {
-    /**
-    * Type of `Prisma.DbNull`.
-    *
-    * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
-    *
-    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-    */
     class DbNull {
       private DbNull: never
       private constructor()
     }
 
-    /**
-    * Type of `Prisma.JsonNull`.
-    *
-    * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
-    *
-    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-    */
     class JsonNull {
       private JsonNull: never
       private constructor()
     }
 
-    /**
-    * Type of `Prisma.AnyNull`.
-    *
-    * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
-    *
-    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-    */
     class AnyNull {
       private AnyNull: never
       private constructor()
     }
   }
 
-  /**
-   * Helper for filtering JSON entries that have `null` on the database (empty on the db)
-   *
-   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-   */
   export const DbNull: NullTypes.DbNull
 
-  /**
-   * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
-   *
-   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-   */
   export const JsonNull: NullTypes.JsonNull
 
-  /**
-   * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
-   *
-   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-   */
   export const AnyNull: NullTypes.AnyNull
 
   type SelectAndInclude = {
@@ -311,19 +132,10 @@ export namespace Prisma {
     omit: any
   }
 
-  /**
-   * Get the type of the value, that the Promise holds.
-   */
   export type PromiseType<T extends PromiseLike<any>> = T extends PromiseLike<infer U> ? U : T;
 
-  /**
-   * Get the return type of a function which returns a Promise.
-   */
   export type PromiseReturnType<T extends (...args: any) => $Utils.JsPromise<any>> = PromiseType<ReturnType<T>>
 
-  /**
-   * From T, pick a set of properties whose keys are in the union K
-   */
   type Prisma__Pick<T, K extends keyof T> = {
       [P in K]: T[P];
   };
@@ -341,32 +153,13 @@ export namespace Prisma {
 
   export type TrueKeys<T> = TruthyKeys<Prisma__Pick<T, RequiredKeys<T>>>
 
-  /**
-   * Subset
-   * @desc From `T` pick properties that exist in `U`. Simple version of Intersection
-   */
   export type Subset<T, U> = {
     [key in keyof T]: key extends keyof U ? T[key] : never;
   };
 
-  /**
-   * Resolved type of the argument passed to the `PrismaClient` constructor.
-   *
-   * When called without a narrower options type (the common case), this resolves
-   * to `PrismaClientOptions` directly, which produces a clear TypeScript error
-   * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
-   * the argument is missing or incomplete. When the user supplies a narrower
-   * options type (e.g. via a literal), it falls back to `Subset` to keep
-   * filtering out unknown properties.
-   */
   export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
     [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
 
-  /**
-   * SelectSubset
-   * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
-   * Additionally, it validates, if both select and include are present. If the case, it errors.
-   */
   export type SelectSubset<T, U> = {
     [key in keyof T]: key extends keyof U ? T[key] : never
   } &
@@ -376,10 +169,6 @@ export namespace Prisma {
         ? 'Please either choose `select` or `omit`.'
         : {})
 
-  /**
-   * Subset + Intersection
-   * @desc From `T` pick properties that exist in `U` and intersect `K`
-   */
   export type SubsetIntersection<T, U, K> = {
     [key in keyof T]: key extends keyof U ? T[key] : never
   } &
@@ -387,10 +176,6 @@ export namespace Prisma {
 
   type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
 
-  /**
-   * XOR is needed to have a real mutually exclusive union type
-   * https://stackoverflow.com/questions/42123407/does-typescript-support-mutually-exclusive-types
-   */
   type XOR<T, U> =
     T extends object ?
     U extends object ?
@@ -398,9 +183,6 @@ export namespace Prisma {
     : U : T
 
 
-  /**
-   * Is T a Record?
-   */
   type IsObject<T extends any> = T extends Array<any>
   ? False
   : T extends Date
@@ -414,19 +196,12 @@ export namespace Prisma {
   : False
 
 
-  /**
-   * If it's T[], return T
-   */
   export type UnEnumerate<T extends unknown> = T extends Array<infer U> ? U : T
 
-  /**
-   * From ts-toolbelt
-   */
 
   type __Either<O extends object, K extends Key> = Omit<O, K> &
     {
-      // Merge all but K
-      [P in K]: Prisma__Pick<O, P & keyof O> // With K possibilities
+      [P in K]: Prisma__Pick<O, P & keyof O> 
     }[K]
 
   type EitherStrict<O extends object, K extends Key> = Strict<__Either<O, K>>
@@ -454,7 +229,6 @@ export namespace Prisma {
     [K in keyof O]: O[K] extends undefined ? At<O1, K> : O[K]
   } & {}
 
-  /** Helper Types for "Merge" **/
   export type IntersectOf<U extends Union> = (
     U extends unknown ? (k: U) => void : never
   ) extends (k: infer I) => void
@@ -490,10 +264,8 @@ export namespace Prisma {
     [P in K]: T;
   };
 
-  // cause typescript not to expand types and preserve names
   type NoExpand<T> = T extends unknown ? T : never;
 
-  // this type assumes the passed object is entirely optional
   type AtLeast<O extends object, K extends string> = NoExpand<
     O extends unknown
     ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
@@ -503,23 +275,13 @@ export namespace Prisma {
   type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
 
   export type Strict<U extends object> = ComputeRaw<_Strict<U>>;
-  /** End Helper Types for "Merge" **/
 
   export type Merge<U extends object> = ComputeRaw<_Merge<Strict<U>>>;
 
-  /**
-  A [[Boolean]]
-  */
   export type Boolean = True | False
 
-  // /**
-  // 1
-  // */
   export type True = 1
 
-  /**
-  0
-  */
   export type False = 0
 
   export type Not<B extends Boolean> = {
@@ -528,7 +290,7 @@ export namespace Prisma {
   }[B]
 
   export type Extends<A1 extends any, A2 extends any> = [A1] extends [never]
-    ? 0 // anything `never` is false
+    ? 0 
     : A1 extends A2
     ? 1
     : 0
@@ -556,9 +318,6 @@ export namespace Prisma {
 
 
 
-  /**
-   * Used by group by
-   */
 
   export type GetScalarType<T, O> = O extends object ? {
     [P in keyof T]: P extends keyof O
@@ -576,9 +335,7 @@ export namespace Prisma {
       Or<Extends<'OR', K>, Extends<'AND', K>>,
       Extends<'NOT', K>
     > extends True
-      ? // infer is only needed to not hit TS limit
-        // based on the brilliant idea of Pierre-Antoine Mills
-        // https://github.com/microsoft/TypeScript/issues/30188#issuecomment-478938437
+      ? 
         T[K] extends infer TK
         ? GetHavingFields<UnEnumerate<TK> extends object ? Merge<UnEnumerate<TK>> : never>
         : never
@@ -587,21 +344,12 @@ export namespace Prisma {
       : K
   }[keyof T]
 
-  /**
-   * Convert tuple to union
-   */
   type _TupleToUnion<T> = T extends (infer E)[] ? E : never
   type TupleToUnion<K extends readonly any[]> = _TupleToUnion<K>
   type MaybeTupleToUnion<T> = T extends any[] ? TupleToUnion<T> : T
 
-  /**
-   * Like `Pick`, but additionally can also accept an array of keys
-   */
   type PickEnumerable<T, K extends Enumerable<keyof T> | keyof T> = Prisma__Pick<T, MaybeTupleToUnion<K>>
 
-  /**
-   * Exclude all keys with underscores
-   */
   type ExcludeUnderscoreKeys<T extends string> = T extends `_${string}` ? never : T
 
 
@@ -808,98 +556,16 @@ export namespace Prisma {
   export type DefaultPrismaClient = PrismaClient
   export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
   export interface PrismaClientOptions {
-    /**
-     * @default "colorless"
-     */
     errorFormat?: ErrorFormat
-    /**
-     * @example
-     * ```
-     * // Shorthand for `emit: 'stdout'`
-     * log: ['query', 'info', 'warn', 'error']
-     * 
-     * // Emit as events only
-     * log: [
-     *   { emit: 'event', level: 'query' },
-     *   { emit: 'event', level: 'info' },
-     *   { emit: 'event', level: 'warn' }
-     *   { emit: 'event', level: 'error' }
-     * ]
-     * 
-     * / Emit as events and log to stdout
-     * og: [
-     *  { emit: 'stdout', level: 'query' },
-     *  { emit: 'stdout', level: 'info' },
-     *  { emit: 'stdout', level: 'warn' }
-     *  { emit: 'stdout', level: 'error' }
-     * 
-     * ```
-     * Read more in our [docs](https://pris.ly/d/logging).
-     */
     log?: (LogLevel | LogDefinition)[]
-    /**
-     * The default values for transactionOptions
-     * maxWait ?= 2000
-     * timeout ?= 5000
-     */
     transactionOptions?: {
       maxWait?: number
       timeout?: number
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
-    /**
-     * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
-     * 
-     * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
-     * 
-     * Learn more: https://pris.ly/d/driver-adapters
-     * 
-     * @example
-     * ```ts
-     * import { PrismaPg } from '@prisma/adapter-pg'
-     * import { PrismaClient } from './generated/prisma/client'
-     * 
-     * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
-     * const prisma = new PrismaClient({ adapter })
-     * ```
-     */
     adapter?: runtime.SqlDriverAdapterFactory
-    /**
-     * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
-     * 
-     * Learn more: https://pris.ly/d/accelerate
-     */
     accelerateUrl?: string
-    /**
-     * Global configuration for omitting model fields by default.
-     * 
-     * @example
-     * ```
-     * const prisma = new PrismaClient({
-     *   omit: {
-     *     user: {
-     *       password: true
-     *     }
-     *   }
-     * })
-     * ```
-     */
     omit?: Prisma.GlobalOmitConfig
-    /**
-     * SQL commenter plugins that add metadata to SQL queries as comments.
-     * Comments follow the sqlcommenter format: https://google.github.io/sqlcommenter/
-     * 
-     * @example
-     * ```
-     * const prisma = new PrismaClient({
-     *   adapter,
-     *   comments: [
-     *     traceContext(),
-     *     queryInsights(),
-     *   ],
-     * })
-     * ```
-     */
     comments?: runtime.SqlCommenterPlugin[]
   }
   export type GlobalOmitConfig = {
@@ -907,7 +573,6 @@ export namespace Prisma {
     room?: RoomOmit
   }
 
-  /* Types for Logging */
   export type LogLevel = 'info' | 'query' | 'warn' | 'error'
   export type LogDefinition = {
     level: LogLevel
@@ -937,7 +602,6 @@ export namespace Prisma {
     message: string
     target: string
   }
-  /* End Types for Logging */
 
 
   export type PrismaAction =
@@ -963,26 +627,16 @@ export namespace Prisma {
     | 'findRaw'
     | 'groupBy'
 
-  // tested in getLogLevel.test.ts
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
 
-  /**
-   * `PrismaClient` proxy available in interactive transactions.
-   */
   export type TransactionClient = Omit<Prisma.DefaultPrismaClient, runtime.ITXClientDenyList>
 
   export type Datasource = {
     url?: string
   }
 
-  /**
-   * Count Types
-   */
 
 
-  /**
-   * Count Type UserCountOutputType
-   */
 
   export type UserCountOutputType = {
     rooms: number
@@ -992,32 +646,16 @@ export namespace Prisma {
     rooms?: boolean | UserCountOutputTypeCountRoomsArgs
   }
 
-  // Custom InputTypes
-  /**
-   * UserCountOutputType without action
-   */
   export type UserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserCountOutputType
-     */
     select?: UserCountOutputTypeSelect<ExtArgs> | null
   }
 
-  /**
-   * UserCountOutputType without action
-   */
   export type UserCountOutputTypeCountRoomsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RoomWhereInput
   }
 
 
-  /**
-   * Models
-   */
 
-  /**
-   * Model User
-   */
 
   export type AggregateUser = {
     _count: UserCountAggregateOutputType | null
@@ -1077,51 +715,13 @@ export namespace Prisma {
   }
 
   export type UserAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which User to aggregate.
-     */
     where?: UserWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Users to fetch.
-     */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
     cursor?: UserWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Users from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Users.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Users
-    **/
     _count?: true | UserCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
     _min?: UserMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
     _max?: UserMaxAggregateInputType
   }
 
@@ -1239,261 +839,35 @@ export namespace Prisma {
 
   export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['User'], meta: { name: 'User' } }
-    /**
-     * Find zero or one User that matches the filter.
-     * @param {UserFindUniqueArgs} args - Arguments to find a User
-     * @example
-     * // Get one User
-     * const user = await prisma.user.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find one User that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {UserFindUniqueOrThrowArgs} args - Arguments to find a User
-     * @example
-     * // Get one User
-     * const user = await prisma.user.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find the first User that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserFindFirstArgs} args - Arguments to find a User
-     * @example
-     * // Get one User
-     * const user = await prisma.user.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find the first User that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserFindFirstOrThrowArgs} args - Arguments to find a User
-     * @example
-     * // Get one User
-     * const user = await prisma.user.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find zero or more Users that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Users
-     * const users = await prisma.user.findMany()
-     * 
-     * // Get first 10 Users
-     * const users = await prisma.user.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
-     * 
-     */
     findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
-    /**
-     * Create a User.
-     * @param {UserCreateArgs} args - Arguments to create a User.
-     * @example
-     * // Create one User
-     * const User = await prisma.user.create({
-     *   data: {
-     *     // ... data to create a User
-     *   }
-     * })
-     * 
-     */
     create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Create many Users.
-     * @param {UserCreateManyArgs} args - Arguments to create many Users.
-     * @example
-     * // Create many Users
-     * const user = await prisma.user.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
     createMany<T extends UserCreateManyArgs>(args?: SelectSubset<T, UserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
-    /**
-     * Create many Users and returns the data saved in the database.
-     * @param {UserCreateManyAndReturnArgs} args - Arguments to create many Users.
-     * @example
-     * // Create many Users
-     * const user = await prisma.user.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Users and only return the `id`
-     * const userWithIdOnly = await prisma.user.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
     createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
-    /**
-     * Delete a User.
-     * @param {UserDeleteArgs} args - Arguments to delete one User.
-     * @example
-     * // Delete one User
-     * const User = await prisma.user.delete({
-     *   where: {
-     *     // ... filter to delete one User
-     *   }
-     * })
-     * 
-     */
     delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Update one User.
-     * @param {UserUpdateArgs} args - Arguments to update one User.
-     * @example
-     * // Update one User
-     * const user = await prisma.user.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
     update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Delete zero or more Users.
-     * @param {UserDeleteManyArgs} args - Arguments to filter Users to delete.
-     * @example
-     * // Delete a few Users
-     * const { count } = await prisma.user.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
     deleteMany<T extends UserDeleteManyArgs>(args?: SelectSubset<T, UserDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
-    /**
-     * Update zero or more Users.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Users
-     * const user = await prisma.user.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
     updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
-    /**
-     * Update zero or more Users and returns the data updated in the database.
-     * @param {UserUpdateManyAndReturnArgs} args - Arguments to update many Users.
-     * @example
-     * // Update many Users
-     * const user = await prisma.user.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Users and only return the `id`
-     * const userWithIdOnly = await prisma.user.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
     updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
-    /**
-     * Create or update one User.
-     * @param {UserUpsertArgs} args - Arguments to update or create a User.
-     * @example
-     * // Update or create a User
-     * const user = await prisma.user.upsert({
-     *   create: {
-     *     // ... data to create a User
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the User we want to update
-     *   }
-     * })
-     */
     upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
-    /**
-     * Count the number of Users.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserCountArgs} args - Arguments to filter Users to count.
-     * @example
-     * // Count the number of Users
-     * const count = await prisma.user.count({
-     *   where: {
-     *     // ... the filter for the Users we want to count
-     *   }
-     * })
-    **/
     count<T extends UserCountArgs>(
       args?: Subset<T, UserCountArgs>,
     ): Prisma.PrismaPromise<
@@ -1504,50 +878,8 @@ export namespace Prisma {
         : number
     >
 
-    /**
-     * Allows you to perform aggregations operations on a User.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
     aggregate<T extends UserAggregateArgs>(args: Subset<T, UserAggregateArgs>): Prisma.PrismaPromise<GetUserAggregateType<T>>
 
-    /**
-     * Group by User.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
     groupBy<
       T extends UserGroupByArgs,
       HasSelectOrTake extends Or<
@@ -1606,49 +938,20 @@ export namespace Prisma {
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
     >(args: SubsetIntersection<T, UserGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the User model
-   */
   readonly fields: UserFieldRefs;
   }
 
-  /**
-   * The delegate class that acts as a "Promise-like" for User.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     rooms<T extends User$roomsArgs<ExtArgs> = {}>(args?: Subset<T, User$roomsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
     finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
   }
 
 
 
 
-  /**
-   * Fields of the User model
-   */
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
@@ -1656,412 +959,123 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
   }
-    
 
-  // Custom InputTypes
-  /**
-   * User findUnique
-   */
+
   export type UserFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * Filter, which User to fetch.
-     */
     where: UserWhereUniqueInput
   }
 
-  /**
-   * User findUniqueOrThrow
-   */
   export type UserFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * Filter, which User to fetch.
-     */
     where: UserWhereUniqueInput
   }
 
-  /**
-   * User findFirst
-   */
   export type UserFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * Filter, which User to fetch.
-     */
     where?: UserWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Users to fetch.
-     */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Users.
-     */
     cursor?: UserWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Users from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Users.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Users.
-     */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
-  /**
-   * User findFirstOrThrow
-   */
   export type UserFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * Filter, which User to fetch.
-     */
     where?: UserWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Users to fetch.
-     */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Users.
-     */
     cursor?: UserWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Users from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Users.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Users.
-     */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
-  /**
-   * User findMany
-   */
   export type UserFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * Filter, which Users to fetch.
-     */
     where?: UserWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Users to fetch.
-     */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Users.
-     */
     cursor?: UserWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Users from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Users.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Users.
-     */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
-  /**
-   * User create
-   */
   export type UserCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * The data needed to create a User.
-     */
     data: XOR<UserCreateInput, UserUncheckedCreateInput>
   }
 
-  /**
-   * User createMany
-   */
   export type UserCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Users.
-     */
     data: UserCreateManyInput | UserCreateManyInput[]
     skipDuplicates?: boolean
   }
 
-  /**
-   * User createManyAndReturn
-   */
   export type UserCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * The data used to create many Users.
-     */
     data: UserCreateManyInput | UserCreateManyInput[]
     skipDuplicates?: boolean
   }
 
-  /**
-   * User update
-   */
   export type UserUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * The data needed to update a User.
-     */
     data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
-    /**
-     * Choose, which User to update.
-     */
     where: UserWhereUniqueInput
   }
 
-  /**
-   * User updateMany
-   */
   export type UserUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Users.
-     */
     data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
-    /**
-     * Filter which Users to update
-     */
     where?: UserWhereInput
-    /**
-     * Limit how many Users to update.
-     */
     limit?: number
   }
 
-  /**
-   * User updateManyAndReturn
-   */
   export type UserUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * The data used to update Users.
-     */
     data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
-    /**
-     * Filter which Users to update
-     */
     where?: UserWhereInput
-    /**
-     * Limit how many Users to update.
-     */
     limit?: number
   }
 
-  /**
-   * User upsert
-   */
   export type UserUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * The filter to search for the User to update in case it exists.
-     */
     where: UserWhereUniqueInput
-    /**
-     * In case the User found by the `where` argument doesn't exist, create a new User with this data.
-     */
     create: XOR<UserCreateInput, UserUncheckedCreateInput>
-    /**
-     * In case the User was found with the provided `where` argument, update it with this data.
-     */
     update: XOR<UserUpdateInput, UserUncheckedUpdateInput>
   }
 
-  /**
-   * User delete
-   */
   export type UserDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
-    /**
-     * Filter which User to delete.
-     */
     where: UserWhereUniqueInput
   }
 
-  /**
-   * User deleteMany
-   */
   export type UserDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Users to delete
-     */
     where?: UserWhereInput
-    /**
-     * Limit how many Users to delete.
-     */
     limit?: number
   }
 
-  /**
-   * User.rooms
-   */
   export type User$roomsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
     where?: RoomWhereInput
     orderBy?: RoomOrderByWithRelationInput | RoomOrderByWithRelationInput[]
@@ -2071,28 +1085,13 @@ export namespace Prisma {
     distinct?: RoomScalarFieldEnum | RoomScalarFieldEnum[]
   }
 
-  /**
-   * User without action
-   */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
     omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: UserInclude<ExtArgs> | null
   }
 
 
-  /**
-   * Model Room
-   */
 
   export type AggregateRoom = {
     _count: RoomCountAggregateOutputType | null
@@ -2146,51 +1145,13 @@ export namespace Prisma {
   }
 
   export type RoomAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Room to aggregate.
-     */
     where?: RoomWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Rooms to fetch.
-     */
     orderBy?: RoomOrderByWithRelationInput | RoomOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
     cursor?: RoomWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Rooms from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Rooms.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Rooms
-    **/
     _count?: true | RoomCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
     _min?: RoomMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
     _max?: RoomMaxAggregateInputType
   }
 
@@ -2306,261 +1267,35 @@ export namespace Prisma {
 
   export interface RoomDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Room'], meta: { name: 'Room' } }
-    /**
-     * Find zero or one Room that matches the filter.
-     * @param {RoomFindUniqueArgs} args - Arguments to find a Room
-     * @example
-     * // Get one Room
-     * const room = await prisma.room.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findUnique<T extends RoomFindUniqueArgs>(args: SelectSubset<T, RoomFindUniqueArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find one Room that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {RoomFindUniqueOrThrowArgs} args - Arguments to find a Room
-     * @example
-     * // Get one Room
-     * const room = await prisma.room.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findUniqueOrThrow<T extends RoomFindUniqueOrThrowArgs>(args: SelectSubset<T, RoomFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find the first Room that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoomFindFirstArgs} args - Arguments to find a Room
-     * @example
-     * // Get one Room
-     * const room = await prisma.room.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findFirst<T extends RoomFindFirstArgs>(args?: SelectSubset<T, RoomFindFirstArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find the first Room that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoomFindFirstOrThrowArgs} args - Arguments to find a Room
-     * @example
-     * // Get one Room
-     * const room = await prisma.room.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
     findFirstOrThrow<T extends RoomFindFirstOrThrowArgs>(args?: SelectSubset<T, RoomFindFirstOrThrowArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Find zero or more Rooms that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoomFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Rooms
-     * const rooms = await prisma.room.findMany()
-     * 
-     * // Get first 10 Rooms
-     * const rooms = await prisma.room.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const roomWithIdOnly = await prisma.room.findMany({ select: { id: true } })
-     * 
-     */
     findMany<T extends RoomFindManyArgs>(args?: SelectSubset<T, RoomFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
-    /**
-     * Create a Room.
-     * @param {RoomCreateArgs} args - Arguments to create a Room.
-     * @example
-     * // Create one Room
-     * const Room = await prisma.room.create({
-     *   data: {
-     *     // ... data to create a Room
-     *   }
-     * })
-     * 
-     */
     create<T extends RoomCreateArgs>(args: SelectSubset<T, RoomCreateArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Create many Rooms.
-     * @param {RoomCreateManyArgs} args - Arguments to create many Rooms.
-     * @example
-     * // Create many Rooms
-     * const room = await prisma.room.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
     createMany<T extends RoomCreateManyArgs>(args?: SelectSubset<T, RoomCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
-    /**
-     * Create many Rooms and returns the data saved in the database.
-     * @param {RoomCreateManyAndReturnArgs} args - Arguments to create many Rooms.
-     * @example
-     * // Create many Rooms
-     * const room = await prisma.room.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Rooms and only return the `id`
-     * const roomWithIdOnly = await prisma.room.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
     createManyAndReturn<T extends RoomCreateManyAndReturnArgs>(args?: SelectSubset<T, RoomCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
-    /**
-     * Delete a Room.
-     * @param {RoomDeleteArgs} args - Arguments to delete one Room.
-     * @example
-     * // Delete one Room
-     * const Room = await prisma.room.delete({
-     *   where: {
-     *     // ... filter to delete one Room
-     *   }
-     * })
-     * 
-     */
     delete<T extends RoomDeleteArgs>(args: SelectSubset<T, RoomDeleteArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Update one Room.
-     * @param {RoomUpdateArgs} args - Arguments to update one Room.
-     * @example
-     * // Update one Room
-     * const room = await prisma.room.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
     update<T extends RoomUpdateArgs>(args: SelectSubset<T, RoomUpdateArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
-    /**
-     * Delete zero or more Rooms.
-     * @param {RoomDeleteManyArgs} args - Arguments to filter Rooms to delete.
-     * @example
-     * // Delete a few Rooms
-     * const { count } = await prisma.room.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
     deleteMany<T extends RoomDeleteManyArgs>(args?: SelectSubset<T, RoomDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
-    /**
-     * Update zero or more Rooms.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoomUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Rooms
-     * const room = await prisma.room.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
     updateMany<T extends RoomUpdateManyArgs>(args: SelectSubset<T, RoomUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
-    /**
-     * Update zero or more Rooms and returns the data updated in the database.
-     * @param {RoomUpdateManyAndReturnArgs} args - Arguments to update many Rooms.
-     * @example
-     * // Update many Rooms
-     * const room = await prisma.room.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Rooms and only return the `id`
-     * const roomWithIdOnly = await prisma.room.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
     updateManyAndReturn<T extends RoomUpdateManyAndReturnArgs>(args: SelectSubset<T, RoomUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
-    /**
-     * Create or update one Room.
-     * @param {RoomUpsertArgs} args - Arguments to update or create a Room.
-     * @example
-     * // Update or create a Room
-     * const room = await prisma.room.upsert({
-     *   create: {
-     *     // ... data to create a Room
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Room we want to update
-     *   }
-     * })
-     */
     upsert<T extends RoomUpsertArgs>(args: SelectSubset<T, RoomUpsertArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
-    /**
-     * Count the number of Rooms.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoomCountArgs} args - Arguments to filter Rooms to count.
-     * @example
-     * // Count the number of Rooms
-     * const count = await prisma.room.count({
-     *   where: {
-     *     // ... the filter for the Rooms we want to count
-     *   }
-     * })
-    **/
     count<T extends RoomCountArgs>(
       args?: Subset<T, RoomCountArgs>,
     ): Prisma.PrismaPromise<
@@ -2571,50 +1306,8 @@ export namespace Prisma {
         : number
     >
 
-    /**
-     * Allows you to perform aggregations operations on a Room.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoomAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
     aggregate<T extends RoomAggregateArgs>(args: Subset<T, RoomAggregateArgs>): Prisma.PrismaPromise<GetRoomAggregateType<T>>
 
-    /**
-     * Group by Room.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RoomGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
     groupBy<
       T extends RoomGroupByArgs,
       HasSelectOrTake extends Or<
@@ -2673,476 +1366,149 @@ export namespace Prisma {
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
     >(args: SubsetIntersection<T, RoomGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRoomGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Room model
-   */
   readonly fields: RoomFieldRefs;
   }
 
-  /**
-   * The delegate class that acts as a "Promise-like" for Room.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
   export interface Prisma__RoomClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     host<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
     finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
   }
 
 
 
 
-  /**
-   * Fields of the Room model
-   */
   interface RoomFieldRefs {
     readonly id: FieldRef<"Room", 'String'>
     readonly title: FieldRef<"Room", 'String'>
     readonly hostId: FieldRef<"Room", 'String'>
     readonly createdAt: FieldRef<"Room", 'DateTime'>
   }
-    
 
-  // Custom InputTypes
-  /**
-   * Room findUnique
-   */
+
   export type RoomFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * Filter, which Room to fetch.
-     */
     where: RoomWhereUniqueInput
   }
 
-  /**
-   * Room findUniqueOrThrow
-   */
   export type RoomFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * Filter, which Room to fetch.
-     */
     where: RoomWhereUniqueInput
   }
 
-  /**
-   * Room findFirst
-   */
   export type RoomFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * Filter, which Room to fetch.
-     */
     where?: RoomWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Rooms to fetch.
-     */
     orderBy?: RoomOrderByWithRelationInput | RoomOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Rooms.
-     */
     cursor?: RoomWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Rooms from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Rooms.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Rooms.
-     */
     distinct?: RoomScalarFieldEnum | RoomScalarFieldEnum[]
   }
 
-  /**
-   * Room findFirstOrThrow
-   */
   export type RoomFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * Filter, which Room to fetch.
-     */
     where?: RoomWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Rooms to fetch.
-     */
     orderBy?: RoomOrderByWithRelationInput | RoomOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Rooms.
-     */
     cursor?: RoomWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Rooms from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Rooms.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Rooms.
-     */
     distinct?: RoomScalarFieldEnum | RoomScalarFieldEnum[]
   }
 
-  /**
-   * Room findMany
-   */
   export type RoomFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * Filter, which Rooms to fetch.
-     */
     where?: RoomWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Rooms to fetch.
-     */
     orderBy?: RoomOrderByWithRelationInput | RoomOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Rooms.
-     */
     cursor?: RoomWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Rooms from the position of the cursor.
-     */
     take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Rooms.
-     */
     skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Rooms.
-     */
     distinct?: RoomScalarFieldEnum | RoomScalarFieldEnum[]
   }
 
-  /**
-   * Room create
-   */
   export type RoomCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Room.
-     */
     data: XOR<RoomCreateInput, RoomUncheckedCreateInput>
   }
 
-  /**
-   * Room createMany
-   */
   export type RoomCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Rooms.
-     */
     data: RoomCreateManyInput | RoomCreateManyInput[]
     skipDuplicates?: boolean
   }
 
-  /**
-   * Room createManyAndReturn
-   */
   export type RoomCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * The data used to create many Rooms.
-     */
     data: RoomCreateManyInput | RoomCreateManyInput[]
     skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
-  /**
-   * Room update
-   */
   export type RoomUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Room.
-     */
     data: XOR<RoomUpdateInput, RoomUncheckedUpdateInput>
-    /**
-     * Choose, which Room to update.
-     */
     where: RoomWhereUniqueInput
   }
 
-  /**
-   * Room updateMany
-   */
   export type RoomUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Rooms.
-     */
     data: XOR<RoomUpdateManyMutationInput, RoomUncheckedUpdateManyInput>
-    /**
-     * Filter which Rooms to update
-     */
     where?: RoomWhereInput
-    /**
-     * Limit how many Rooms to update.
-     */
     limit?: number
   }
 
-  /**
-   * Room updateManyAndReturn
-   */
   export type RoomUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * The data used to update Rooms.
-     */
     data: XOR<RoomUpdateManyMutationInput, RoomUncheckedUpdateManyInput>
-    /**
-     * Filter which Rooms to update
-     */
     where?: RoomWhereInput
-    /**
-     * Limit how many Rooms to update.
-     */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
-  /**
-   * Room upsert
-   */
   export type RoomUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Room to update in case it exists.
-     */
     where: RoomWhereUniqueInput
-    /**
-     * In case the Room found by the `where` argument doesn't exist, create a new Room with this data.
-     */
     create: XOR<RoomCreateInput, RoomUncheckedCreateInput>
-    /**
-     * In case the Room was found with the provided `where` argument, update it with this data.
-     */
     update: XOR<RoomUpdateInput, RoomUncheckedUpdateInput>
   }
 
-  /**
-   * Room delete
-   */
   export type RoomDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
-    /**
-     * Filter which Room to delete.
-     */
     where: RoomWhereUniqueInput
   }
 
-  /**
-   * Room deleteMany
-   */
   export type RoomDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Rooms to delete
-     */
     where?: RoomWhereInput
-    /**
-     * Limit how many Rooms to delete.
-     */
     limit?: number
   }
 
-  /**
-   * Room without action
-   */
   export type RoomDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Room
-     */
     select?: RoomSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Room
-     */
     omit?: RoomOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
     include?: RoomInclude<ExtArgs> | null
   }
 
 
-  /**
-   * Enums
-   */
 
   export const TransactionIsolationLevel: {
     ReadUncommitted: 'ReadUncommitted',
@@ -3199,54 +1565,30 @@ export namespace Prisma {
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
-  /**
-   * Field references
-   */
 
 
-  /**
-   * Reference to a field of type 'String'
-   */
   export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
-    
 
 
-  /**
-   * Reference to a field of type 'String[]'
-   */
+
   export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
 
 
-  /**
-   * Reference to a field of type 'DateTime'
-   */
+
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
 
 
-  /**
-   * Reference to a field of type 'DateTime[]'
-   */
+
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
 
 
-  /**
-   * Reference to a field of type 'Int'
-   */
+
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
 
 
-  /**
-   * Reference to a field of type 'Int[]'
-   */
+
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-  /**
-   * Deep Input Types
-   */
+
 
 
   export type UserWhereInput = {
@@ -3917,16 +2259,10 @@ export namespace Prisma {
 
 
 
-  /**
-   * Batch Payload for updateMany & deleteMany & createMany
-   */
 
   export type BatchPayload = {
     count: number
   }
 
-  /**
-   * DMMF
-   */
   export const dmmf: runtime.BaseDMMF
 }

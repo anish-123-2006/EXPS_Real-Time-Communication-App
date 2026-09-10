@@ -23,7 +23,6 @@ export function useSignaling(
     const socketRef = useRef<Socket | null>(null);
     const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
 
-    // Expose peer connections map so useMedia can replace tracks for screen share.
     const getPeerConnections = useCallback(() => peerConnections.current, []);
 
     const removePeer = useCallback((peerId: string) => {
@@ -64,7 +63,6 @@ export function useSignaling(
         [localStream]
     );
 
-    // Connect socket and wire signaling events.
     useEffect(() => {
         if (!enabled || !localStream) return;
 
@@ -102,8 +100,6 @@ export function useSignaling(
         sock.on('receive-webrtc-answer', async ({ sdpAnswer }: {
             sdpAnswer: RTCSessionDescriptionInit;
         }) => {
-            // The answer carries the callerId implicitly via the socket that sent it;
-            // we match by finding the pc whose remote description isn't set yet.
             for (const pc of peerConnections.current.values()) {
                 if (!pc.currentRemoteDescription) {
                     await pc.setRemoteDescription(new RTCSessionDescription(sdpAnswer));
@@ -121,7 +117,6 @@ export function useSignaling(
                 try {
                     await pc.addIceCandidate(new RTCIceCandidate(candidate));
                 } catch {
-                    // Stale candidate — safe to ignore.
                 }
             }
         });

@@ -30,7 +30,7 @@ export default function RoomPage() {
         roomReady
     );
 
-    // Verify room access and acquire media.
+    
     useEffect(() => {
         if (!localStorage.getItem("token")) {
             router.replace("/login");
@@ -58,10 +58,10 @@ export default function RoomPage() {
         return () => {
             media.stopAllTracks();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        
     }, [roomId, router]);
 
-    // Meeting timer.
+    
     useEffect(() => {
         const start = Date.now();
         const timer = setInterval(() => {
@@ -121,7 +121,7 @@ export default function RoomPage() {
 
     return (
         <div className="flex flex-col h-screen w-full bg-zinc-950 text-zinc-50 overflow-hidden font-sans selection:bg-blue-500/30">
-            {/* Header */}
+            
             <header className="h-16 flex items-center justify-between px-4 sm:px-6 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-900 shrink-0 z-10">
                 <Link
                     href="/"
@@ -147,7 +147,7 @@ export default function RoomPage() {
                 </div>
             </header>
 
-            {/* Main workspace */}
+            
             <div className="flex-1 flex overflow-hidden relative">
                 <VideoGrid localStream={media.localStream} remoteStreams={remoteStreams} />
                 <CollaborationSidebar

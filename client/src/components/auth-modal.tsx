@@ -34,7 +34,6 @@ export function AuthModal({
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
-    // Sync mode when the modal is (re)opened with a different initialMode.
     useEffect(() => {
         if (isOpen) {
             setMode(initialMode);

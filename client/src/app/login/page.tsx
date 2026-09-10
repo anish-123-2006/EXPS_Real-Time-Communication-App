@@ -36,13 +36,8 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // 1. Send login credentials to the backend
       const response = await api.post("/login", formData);
-      
-      // 2. THE MOST IMPORTANT STEP: Save the VIP Wristband (JWT) to the browser's wallet
       localStorage.setItem("token", response.data.token);
-      
-      // 3. Redirect to the main dashboard/room selection page
       router.push("/dashboard");
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, "Login failed"));

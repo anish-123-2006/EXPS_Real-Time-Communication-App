@@ -46,7 +46,7 @@ export function VideoGrid({
 
     return (
         <div className={`flex-1 w-full h-full p-2 sm:p-4 grid gap-4 items-center ${gridClass(remoteEntries.length)}`}>
-            {/* Local tile */}
+            
             <div className="relative bg-zinc-900 rounded-2xl overflow-hidden border-2 border-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.2)] aspect-video w-full group">
                 <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
                 {!localStream && (
@@ -62,7 +62,7 @@ export function VideoGrid({
                 </div>
             </div>
 
-            {/* Remote tiles — one per participant */}
+            
             {remoteEntries.length === 0 && (
                 <div className="relative bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg aspect-video w-full">
                     <div className="absolute inset-0 flex items-center justify-center">

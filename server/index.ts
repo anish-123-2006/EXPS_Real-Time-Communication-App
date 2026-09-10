@@ -36,16 +36,13 @@ const io = new Server(server, {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Health check
 app.get('/health', (_req, res) => res.status(200).json({ status: 'ok' }));
 
-// Routes
 import authRoutes from './routes/auth.js';
 import roomRoutes from './routes/rooms.js';
 app.use(authRoutes);
 app.use(roomRoutes);
 
-// Socket middleware & handlers
 import { socketAuthMiddleware } from './middleware/socketAuth.js';
 import { joinRoom, leaveRoom, getRoomForSocket } from './socket/roomPresence.js';
 import { getSnapshot } from './socket/whiteboardHandlers.js';
@@ -71,13 +68,11 @@ io.on('connection', (socket) => {
         socket.join(roomId);
         joinRoom(roomId, socket.id);
 
-        // Send existing whiteboard state to the late joiner.
         const snapshot = getSnapshot(roomId);
         if (snapshot.length > 0) {
             socket.emit('whiteboard-snapshot', { segments: snapshot });
         }
 
-        // Notify existing participants.
         socket.to(roomId).emit('user-connected', socket.id);
     });
 

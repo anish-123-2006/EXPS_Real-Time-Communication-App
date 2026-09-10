@@ -15,7 +15,7 @@ export type SharedFile = SharedFilePayload & {
     isRemote: boolean;
 };
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_BYTES = 5 * 1024 * 1024; 
 
 const ALLOWED_MIME_PREFIXES = [
     'image/',

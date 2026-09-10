@@ -18,14 +18,12 @@ export function useWhiteboard(
     const isDrawing = useRef(false);
     const lastPoint = useRef<{ x: number; y: number } | null>(null);
 
-    // Scale canvas to device pixel ratio and keep it in sync on resize.
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
         const resize = () => {
             const ctx = canvas.getContext('2d');
-            // Save current drawing before resize.
             const imageData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
 
             canvas.width = canvas.offsetWidth * window.devicePixelRatio;
@@ -78,7 +76,7 @@ export function useWhiteboard(
             if (!canvas) return;
             isDrawing.current = true;
             lastPoint.current = getPos(e, canvas);
-            void color; void brushSize; // referenced via closure in draw()
+            void color; void brushSize; 
         },
         [canvasRef, getPos]
     );
@@ -125,7 +123,6 @@ export function useWhiteboard(
         [canvasRef, socket, roomId]
     );
 
-    // Socket event listeners.
     useEffect(() => {
         if (!socket) return;
 
@@ -137,7 +134,6 @@ export function useWhiteboard(
 
         const handleClear = () => clearCanvas(false);
 
-        // Replay full whiteboard history for late joiners.
         const handleSnapshot = ({ segments }: { segments: DrawSegment[] }) => {
             const canvas = canvasRef.current;
             const ctx = canvas?.getContext('2d');

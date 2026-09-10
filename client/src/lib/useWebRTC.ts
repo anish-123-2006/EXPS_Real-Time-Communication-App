@@ -44,8 +44,6 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
                 }
                 setLocalStream(stream);
 
-                // Only connect to socket AFTER media stream is established 
-                // to prevent missing offer/answer signaling out of order.
                 const sock = io(SOCKET_URL, { auth: { token } });
                 socketRef.current = sock;
                 setSocket(sock);
@@ -72,7 +70,6 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
         };
     }, [roomId, enabled]);
 
-    // Peer Connection Handlers
     useEffect(() => {
         if (!socket || !localStream) return;
 
@@ -80,18 +77,15 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
             const pc = new RTCPeerConnection(ICE_SERVERS);
             peerConnectionRef.current = pc;
 
-            // Add local tracks to peer connection
             localStream.getTracks().forEach(track => {
                 pc.addTrack(track, localStream);
             });
 
-            // Handle receiving remote tracks
             pc.ontrack = (event) => {
                 const [stream] = event.streams;
                 setRemoteStream(stream);
             };
 
-            // Handle ICE Candidates
             pc.onicecandidate = (event) => {
                 if (event.candidate) {
                     socket.emit('send-ice-candidate', {
@@ -104,7 +98,6 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
             return pc;
         };
 
-        // User connected -> Make Offer
         socket.on('user-connected', async (newUserId: string) => {
             const pc = createPeerConnection(newUserId);
             const offer = await pc.createOffer();
@@ -117,7 +110,6 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
             });
         });
 
-        // Received Offer -> Create Answer
         socket.on('receive-webrtc-offer', async ({ callerId, sdpOffer }) => {
             const pc = createPeerConnection(callerId);
             await pc.setRemoteDescription(new RTCSessionDescription(sdpOffer));
@@ -131,7 +123,6 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
             });
         });
 
-        // Received Answer -> Finish setup
         socket.on('receive-webrtc-answer', async ({ sdpAnswer }) => {
             const pc = peerConnectionRef.current;
             if (pc) {
@@ -139,7 +130,6 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
             }
         });
 
-        // Receive ICE Candidates
         socket.on('receive-ice-candidate', async ({ candidate }) => {
             const pc = peerConnectionRef.current;
             if (pc) {
@@ -190,7 +180,6 @@ export function useWebRTC(roomId: string, enabled: boolean = true) {
                 if (sender) await sender.replaceTrack(screenTrack);
             }
 
-            // When screen share stops, revert to camera
             screenTrack.onended = () => {
                 const cameraTrack = localStream?.getVideoTracks()[0];
                 const pc = peerConnectionRef.current;

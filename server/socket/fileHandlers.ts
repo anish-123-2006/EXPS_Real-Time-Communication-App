@@ -1,7 +1,7 @@
 import type { Server, Socket } from 'socket.io';
 import { isInRoom } from './roomPresence.js';
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB expressed as data-URL characters
+const MAX_BYTES = 5 * 1024 * 1024; 
 
 const ALLOWED_MIME_PREFIXES = [
     'image/',
@@ -30,7 +30,6 @@ export function registerFileHandlers(io: Server, socket: Socket) {
         if (typeof roomId !== 'string' || !file) return;
         if (!isInRoom(roomId, socket.id)) return;
 
-        // Validate size against the raw data URL length (conservative proxy for byte size).
         if (typeof file.dataUrl !== 'string' || file.dataUrl.length > MAX_BYTES * 1.4) {
             socket.emit('file-error', 'File is too large. The maximum allowed size is 5 MB.');
             return;

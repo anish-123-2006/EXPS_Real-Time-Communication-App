@@ -1,9 +1,3 @@
-/**
- * In-memory room presence tracker.
- *
- * Maps roomId → Set of socket IDs currently in that room.
- * Also maps socketId → roomId so we can clean up on disconnect.
- */
 
 const roomSockets = new Map<string, Set<string>>();
 const socketRoom = new Map<string, string>();

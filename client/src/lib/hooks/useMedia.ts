@@ -9,7 +9,6 @@ export function useMedia() {
     const localStreamRef = useRef<MediaStream | null>(null);
     const screenTrackRef = useRef<MediaStreamTrack | null>(null);
 
-    // Keep ref in sync for cleanup callbacks that outlive state.
     useEffect(() => {
         localStreamRef.current = localStream;
     }, [localStream]);
@@ -84,7 +83,6 @@ export function useMedia() {
 
                 return true;
             } catch {
-                // Permission denied or dismissed — do not update UI state.
                 return false;
             }
         },

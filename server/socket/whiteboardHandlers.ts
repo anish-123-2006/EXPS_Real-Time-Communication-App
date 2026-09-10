@@ -10,7 +10,6 @@ type DrawSegment = {
     brushSize: number;
 };
 
-// In-memory whiteboard state per room.
 const roomSegments = new Map<string, DrawSegment[]>();
 
 export function getSnapshot(roomId: string): DrawSegment[] {

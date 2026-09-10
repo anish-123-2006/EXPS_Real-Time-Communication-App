@@ -25,7 +25,7 @@ export function BottomDock({
 }) {
     return (
         <div className="h-20 w-full flex items-center justify-between px-4 sm:px-6 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-900 shrink-0">
-            {/* Collaboration tools */}
+            
             <div className="flex items-center gap-2">
                 <button
                     onClick={() => toggleSidebar("whiteboard")}
@@ -43,7 +43,7 @@ export function BottomDock({
                 </button>
             </div>
 
-            {/* Primary media controls */}
+            
             <div className="flex items-center gap-3 sm:gap-4 absolute left-1/2 -translate-x-1/2">
                 <button
                     onClick={onToggleAudio}
@@ -68,7 +68,7 @@ export function BottomDock({
                 </button>
             </div>
 
-            {/* End meeting */}
+            
             <div className="flex items-center">
                 <button
                     onClick={onEndMeeting}
