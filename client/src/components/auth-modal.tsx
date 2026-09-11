@@ -1,5 +1,7 @@
+"use client";
+
 import { X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import api from "@/lib/api";
 
 type AuthMode = "login" | "register";
@@ -16,35 +18,24 @@ const getApiErrorMessage = (error: unknown, fallback: string): string => {
     return fallback;
 };
 
-export function AuthModal({
-    isOpen,
-    onClose,
-    onAuthSuccess,
-    initialMode = "login",
-}: {
+interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
     onAuthSuccess?: () => void;
     initialMode?: AuthMode;
-}) {
+}
+
+function AuthModalDialog({
+    onClose,
+    onAuthSuccess,
+    initialMode = "login",
+}: Omit<AuthModalProps, "isOpen">) {
     const [mode, setMode] = useState<AuthMode>(initialMode);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            setMode(initialMode);
-            setError(null);
-            setName("");
-            setEmail("");
-            setPassword("");
-        }
-    }, [isOpen, initialMode]);
-
-    if (!isOpen) return null;
 
     const isLogin = mode === "login";
 
@@ -56,10 +47,12 @@ export function AuthModal({
             if (isLogin) {
                 const res = await api.post("/login", { email, password });
                 localStorage.setItem("token", res.data.token);
+                window.dispatchEvent(new Event("storage"));
             } else {
                 await api.post("/users", { name, email, password });
                 const loginRes = await api.post("/login", { email, password });
                 localStorage.setItem("token", loginRes.data.token);
+                window.dispatchEvent(new Event("storage"));
             }
             onAuthSuccess?.();
             onClose();
@@ -159,5 +152,17 @@ export function AuthModal({
                 </div>
             </div>
         </div>
+    );
+}
+
+export function AuthModal({ isOpen, onClose, onAuthSuccess, initialMode = "login" }: AuthModalProps) {
+    if (!isOpen) return null;
+    return (
+        <AuthModalDialog
+            key={initialMode}
+            onClose={onClose}
+            onAuthSuccess={onAuthSuccess}
+            initialMode={initialMode}
+        />
     );
 }

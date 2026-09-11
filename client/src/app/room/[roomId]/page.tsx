@@ -24,13 +24,13 @@ export default function RoomPage() {
     const [accessError, setAccessError] = useState("");
 
     const media = useMedia();
+    const { startMedia, stopAllTracks } = media;
     const { socket, remoteStreams, getPeerConnections, leaveRoom } = useSignaling(
         roomId,
         media.localStream,
         roomReady
     );
 
-    
     useEffect(() => {
         if (!localStorage.getItem("token")) {
             router.replace("/login");
@@ -40,7 +40,7 @@ export default function RoomPage() {
         api.get(`/rooms/${encodeURIComponent(roomId)}`)
             .then(() => {
                 setRoomReady(true);
-                media.startMedia();
+                startMedia();
             })
             .catch((error: unknown) => {
                 const status =
@@ -55,13 +55,21 @@ export default function RoomPage() {
                 setAccessError("This room does not exist or is no longer available.");
             });
 
-        return () => {
-            media.stopAllTracks();
+        const handleBeforeUnload = () => {
+            stopAllTracks();
+            leaveRoom();
         };
-        
-    }, [roomId, router]);
 
-    
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            stopAllTracks();
+            leaveRoom();
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [roomId, router, startMedia, stopAllTracks, leaveRoom]);
+
     useEffect(() => {
         const start = Date.now();
         const timer = setInterval(() => {
@@ -121,7 +129,6 @@ export default function RoomPage() {
 
     return (
         <div className="flex flex-col h-screen w-full bg-zinc-950 text-zinc-50 overflow-hidden font-sans selection:bg-blue-500/30">
-            
             <header className="h-16 flex items-center justify-between px-4 sm:px-6 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-900 shrink-0 z-10">
                 <Link
                     href="/"
@@ -147,7 +154,6 @@ export default function RoomPage() {
                 </div>
             </header>
 
-            
             <div className="flex-1 flex overflow-hidden relative">
                 <VideoGrid localStream={media.localStream} remoteStreams={remoteStreams} />
                 <CollaborationSidebar

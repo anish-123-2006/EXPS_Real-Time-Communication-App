@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-//* prisma is a transl;ator between the js and database which only understand sql, so we write query in js and send to prisma which then translator it to sql and send to database and visa versa
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/client"
@@ -12,8 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-//* in Prisma, tables are called as 'models';
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -22,17 +15,13 @@ model User {
   createdAt DateTime @default(now())
 
   rooms Room[]
-  //* a user can have an array (list) of rooms!
 }
 
 model Room {
   id        String   @id @default(uuid())
   title     String?
-  //* ? is ternery operator , it means title for meeting is optional not mandatory to fill
   hostId    String
-  //* hostId will be the userid
   createdAt DateTime @default(now())
 
   host User @relation(fields: [hostId], references: [id])
-  //* linking the user and the room model, with one to many realtionship, one userid can create many rooms
 }

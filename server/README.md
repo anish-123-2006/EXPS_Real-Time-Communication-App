@@ -1,60 +1,63 @@
 # Meshly — Server
 
-Express + Socket.IO server with Prisma (PostgreSQL via Neon).
+Express and Socket.IO real-time backend with Prisma ORM and PostgreSQL.
 
 ## Structure
 
 ```
 server/
-├── index.ts              # Bootstrap: HTTP server, CORS, route/socket wiring
-├── db.ts                 # Prisma singleton
+├── controllers/
+│   ├── authController.ts        # Handlers for POST /users and POST /login
+│   └── roomController.ts        # Handlers for GET /me, POST /rooms, GET /rooms/:roomId
 ├── middleware/
-│   ├── auth.ts           # Express JWT middleware
-│   └── socketAuth.ts     # Socket.IO JWT middleware
+│   ├── auth.ts                  # Express JWT Bearer token authentication
+│   └── socketAuth.ts            # Socket.IO handshake JWT authentication
 ├── routes/
-│   ├── auth.ts           # POST /users, POST /login
-│   └── rooms.ts          # GET /me, POST /rooms, GET /rooms/:roomId
+│   ├── auth.ts                  # Pure route declarations for auth endpoints
+│   └── rooms.ts                 # Pure route declarations for room endpoints
 ├── services/
-│   ├── authService.ts    # register / login business logic
-│   └── roomService.ts    # createRoom / getRoom business logic
+│   ├── authService.ts           # Password hashing (bcrypt) & JWT issuance
+│   └── roomService.ts           # Room CRUD queries via Prisma
 ├── socket/
-│   ├── roomPresence.ts   # In-memory socket ↔ room membership tracker
-│   ├── signalingHandlers.ts  # WebRTC offer / answer / ICE relay (room-guarded)
-│   ├── whiteboardHandlers.ts # Draw / clear + per-room snapshot for late joiners
-│   └── fileHandlers.ts   # File share with 5 MB limit + MIME whitelist
-└── prisma/
-    └── schema.prisma
+│   ├── roomPresence.ts          # In-memory socket-to-room presence manager
+│   ├── signalingHandlers.ts     # Room-guarded WebRTC offer/answer/ICE candidate relay
+│   ├── whiteboardHandlers.ts    # Room-guarded vector stroke relay and snapshot buffer
+│   └── fileHandlers.ts          # Room-guarded file payload validation (5 MB max)
+├── prisma/
+│   └── schema.prisma            # Prisma schema for User and Room models
+├── db.ts                        # Shared PrismaClient singleton
+└── index.ts                     # HTTP + Socket.IO server initialization
 ```
 
 ## Setup
 
 ```bash
 cp .env.example .env
-# Fill in DATABASE_URL and JWT_SECRET
 npm install
 npx prisma migrate deploy
 npm run dev
 ```
 
-## Environment variables
+## Environment Variables
 
 | Variable | Description |
 |---|---|
-| `DATABASE_URL` | PostgreSQL connection string (Neon) |
-| `JWT_SECRET` | Secret used to sign / verify JWTs |
-| `PORT` | Port to listen on (default: 5000) |
-| `CLIENT_ORIGIN` | Comma-separated list of allowed CORS origins |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_SECRET` | Secret key used to sign and verify JSON Web Tokens |
+| `PORT` | Port the HTTP and Socket.IO server listens on (default: 5000) |
+| `CLIENT_ORIGIN` | Comma-separated list of allowed CORS origins (e.g. `http://localhost:3000`) |
 
-## Socket events
+## Socket.IO Events
 
-All real-time events require an authenticated socket (JWT in handshake auth). Before relaying WebRTC or whiteboard events the server confirms both sender and target are members of the same room.
+All Socket.IO events require an authenticated socket connection (`token` in handshake auth). Before relaying WebRTC signals, whiteboard strokes, or shared files, the server verifies that both sender and recipient are members of the requested room.
 
-| Event (client → server) | Description |
-|---|---|
-| `join-room` | Join a room; triggers snapshot replay for whiteboard |
-| `send-webrtc-offer` | Relay SDP offer to a peer in the same room |
-| `send-webrtc-answer` | Relay SDP answer back to caller |
-| `send-ice-candidate` | Relay ICE candidate to a peer |
-| `whiteboard-draw` | Broadcast a draw segment to the room |
-| `whiteboard-clear` | Clear the room whiteboard |
-| `file-share` | Share a file (≤ 5 MB, allowed MIME types only) |
+| Event (Client → Server) | Payload | Description |
+|---|---|---|
+| `join-room` | `roomId` | Joins socket to room, sends snapshot to newcomer, broadcasts `user-connected` |
+| `send-webrtc-offer` | `{ roomId, targetUserId, sdpOffer }` | Validates room membership and relays `receive-webrtc-offer` with sender's `callerId` |
+| `send-webrtc-answer` | `{ roomId, targetUserId, sdpAnswer }` | Validates room membership and relays `receive-webrtc-answer` with sender's `responderId` |
+| `send-ice-candidate` | `{ roomId, targetUserId, candidate }` | Validates room membership and relays `receive-ice-candidate` with sender's `from` ID |
+| `whiteboard-draw` | `{ roomId, segment }` | Validates room membership and segment structure, buffers stroke, broadcasts to room |
+| `whiteboard-clear` | `{ roomId }` | Validates room membership, clears room stroke buffer, broadcasts to room |
+| `get-whiteboard-snapshot` | `{ roomId }` | Validates room membership and sends all buffered strokes to the requesting socket |
+| `file-share` | `{ roomId, file }` | Validates room membership, 5 MB size limit, and MIME type; relays `file-share` |

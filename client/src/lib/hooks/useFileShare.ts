@@ -15,12 +15,13 @@ export type SharedFile = SharedFilePayload & {
     isRemote: boolean;
 };
 
-const MAX_BYTES = 5 * 1024 * 1024; 
+const MAX_BYTES = 5 * 1024 * 1024; // 5 MB hard limit
 
 const ALLOWED_MIME_PREFIXES = [
     'image/',
     'application/pdf',
-    'text/plain',
+    'text/',
+    'application/json',
     'application/msword',
     'application/vnd.openxmlformats-officedocument',
     'application/vnd.ms-',
@@ -33,12 +34,14 @@ function formatBytes(size: number): string {
 }
 
 function isMimeAllowed(mimeType: string): boolean {
+    if (!mimeType) return false;
     return ALLOWED_MIME_PREFIXES.some((prefix) => mimeType.startsWith(prefix));
 }
 
 export function useFileShare(socket: Socket | null, roomId: string) {
     const [files, setFiles] = useState<SharedFile[]>([]);
     const [validationError, setValidationError] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
     const seenIds = useRef<Set<string>>(new Set());
 
     const pushFile = useCallback((payload: SharedFilePayload, isRemote: boolean) => {
@@ -53,8 +56,13 @@ export function useFileShare(socket: Socket | null, roomId: string) {
     useEffect(() => {
         if (!socket) return;
 
-        const handleIncoming = ({ file }: { file: SharedFilePayload }) => pushFile(file, true);
-        const handleError = (message: string) => setValidationError(message);
+        const handleIncoming = ({ file }: { file: SharedFilePayload }) => {
+            pushFile(file, true);
+        };
+
+        const handleError = (message: string) => {
+            setValidationError(message);
+        };
 
         socket.on('file-share', handleIncoming);
         socket.on('file-error', handleError);
@@ -65,15 +73,26 @@ export function useFileShare(socket: Socket | null, roomId: string) {
         };
     }, [socket, pushFile]);
 
+    const clearError = useCallback(() => {
+        setValidationError(null);
+    }, []);
+
     const addFiles = useCallback(
         async (fileList: FileList | null) => {
             if (!fileList || fileList.length === 0) return;
             setValidationError(null);
 
-            for (const file of Array.from(fileList)) {
+            const filesToProcess = Array.from(fileList);
+
+            for (const file of filesToProcess) {
+                if (file.size === 0) {
+                    setValidationError(`"${file.name}" is empty (0 B) and cannot be shared.`);
+                    continue;
+                }
+
                 if (file.size > MAX_BYTES) {
                     setValidationError(
-                        `"${file.name}" is too large (${formatBytes(file.size)}). The maximum allowed size is 5 MB.`
+                        `"${file.name}" is too large (${formatBytes(file.size)}). The maximum allowed file size is 5 MB.`
                     );
                     continue;
                 }
@@ -81,29 +100,36 @@ export function useFileShare(socket: Socket | null, roomId: string) {
                 const mimeType = file.type || 'application/octet-stream';
                 if (!isMimeAllowed(mimeType)) {
                     setValidationError(
-                        `"${file.name}" cannot be shared. Allowed types: images, PDFs, text, and common office documents.`
+                        `"${file.name}" has an unsupported file type. Allowed formats: images, PDFs, text, and common office documents.`
                     );
                     continue;
                 }
 
-                const dataUrl = await new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(String(reader.result));
-                    reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
-                    reader.readAsDataURL(file);
-                });
+                setIsUploading(true);
+                try {
+                    const dataUrl = await new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(String(reader.result));
+                        reader.onerror = () => reject(new Error(`Failed to read file ${file.name}`));
+                        reader.readAsDataURL(file);
+                    });
 
-                const payload: SharedFilePayload = {
-                    id: `${Date.now()}-${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
-                    name: file.name,
-                    size: file.size,
-                    mimeType,
-                    dataUrl,
-                    sharedAt: Date.now(),
-                };
+                    const payload: SharedFilePayload = {
+                        id: `${Date.now()}-${file.name.slice(0, 30)}-${file.size}-${Math.random().toString(36).slice(2, 7)}`,
+                        name: file.name,
+                        size: file.size,
+                        mimeType,
+                        dataUrl,
+                        sharedAt: Date.now(),
+                    };
 
-                pushFile(payload, false);
-                socket?.emit('file-share', { roomId, file: payload });
+                    pushFile(payload, false);
+                    socket?.emit('file-share', { roomId, file: payload });
+                } catch (err: unknown) {
+                    setValidationError((err as Error).message || `Could not read "${file.name}".`);
+                } finally {
+                    setIsUploading(false);
+                }
             }
         },
         [pushFile, roomId, socket]
@@ -114,5 +140,5 @@ export function useFileShare(socket: Socket | null, roomId: string) {
         setFiles((prev) => prev.filter((f) => f.id !== id));
     }, []);
 
-    return { files, validationError, addFiles, removeFile };
+    return { files, validationError, isUploading, clearError, addFiles, removeFile };
 }

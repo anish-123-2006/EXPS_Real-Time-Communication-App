@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, FileUp, Download, File, X, Minus, Circle, AlertCircle } from "lucide-react";
+import { Trash2, FileUp, Download, File, X, Minus, Circle, AlertCircle, Loader2 } from "lucide-react";
 import { useState, useRef, useCallback } from "react";
 import type { Socket } from "socket.io-client";
 import { useWhiteboard } from "@/lib/hooks/useWhiteboard";
@@ -71,15 +71,15 @@ function Whiteboard({ socket, roomId }: { socket: Socket | null; roomId: string 
                 </div>
             </div>
 
-            <div className="flex-1 bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 min-h-0">
+            <div className="flex-1 bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 min-h-0 relative">
                 <canvas
                     ref={canvasRef}
                     className="w-full h-full block cursor-crosshair touch-none"
-                    onMouseDown={(e) => startDraw(e, color, brushSize)}
+                    onMouseDown={startDraw}
                     onMouseMove={(e) => draw(e, color, brushSize)}
                     onMouseUp={stopDraw}
                     onMouseLeave={stopDraw}
-                    onTouchStart={(e) => startDraw(e, color, brushSize)}
+                    onTouchStart={startDraw}
                     onTouchMove={(e) => draw(e, color, brushSize)}
                     onTouchEnd={stopDraw}
                 />
@@ -91,7 +91,7 @@ function Whiteboard({ socket, roomId }: { socket: Socket | null; roomId: string 
 function FileManager({ socket, roomId }: { socket: Socket | null; roomId: string }) {
     const [isDragging, setIsDragging] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const { files, validationError, addFiles, removeFile } = useFileShare(socket, roomId);
+    const { files, validationError, isUploading, clearError, addFiles, removeFile } = useFileShare(socket, roomId);
 
     const onDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -109,9 +109,18 @@ function FileManager({ socket, roomId }: { socket: Socket | null; roomId: string
     return (
         <div className="flex flex-col gap-5 h-full">
             {validationError && (
-                <div className="flex items-start gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                    <span>{validationError}</span>
+                <div className="flex items-start justify-between gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                    <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                        <span>{validationError}</span>
+                    </div>
+                    <button
+                        onClick={clearError}
+                        className="text-red-400 hover:text-red-200 p-0.5 rounded transition-colors"
+                        title="Dismiss error"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
                 </div>
             )}
 
@@ -123,14 +132,23 @@ function FileManager({ socket, roomId }: { socket: Socket | null; roomId: string
                 className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all cursor-pointer group ${isDragging ? "border-blue-500 bg-blue-500/5" : "border-zinc-800 hover:bg-zinc-900/50 hover:border-zinc-700"}`}
             >
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-colors ${isDragging ? "bg-blue-500/20" : "bg-zinc-900 group-hover:bg-zinc-800"}`}>
-                    <FileUp className="w-6 h-6 text-blue-400 transition-transform group-hover:scale-110" />
+                    {isUploading ? (
+                        <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                    ) : (
+                        <FileUp className="w-6 h-6 text-blue-400 transition-transform group-hover:scale-110" />
+                    )}
                 </div>
-                <h3 className="text-zinc-200 font-medium mb-1">Upload a File</h3>
-                <p className="text-zinc-500 text-sm mb-1">{isDragging ? "Drop it!" : "Drag and drop or click to browse"}</p>
+                <h3 className="text-zinc-200 font-medium mb-1">
+                    {isUploading ? "Uploading file…" : "Upload a File"}
+                </h3>
+                <p className="text-zinc-500 text-sm mb-1">
+                    {isDragging ? "Drop it!" : "Drag and drop or click to browse"}
+                </p>
                 <p className="text-zinc-600 text-xs mb-5">Max 5 MB · Images, PDFs, text, office docs</p>
                 <button
+                    disabled={isUploading}
                     onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
-                    className="bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+                    className="bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors shadow-sm disabled:opacity-50"
                 >
                     Browse Files
                 </button>

@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import prisma from './db.js';
 
 dotenv.config();
@@ -31,21 +33,31 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: { ...corsOptions, methods: ['GET', 'POST'] },
+    maxHttpBufferSize: 7 * 1024 * 1024,
 });
 
+app.use(helmet());
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 app.get('/health', (_req, res) => res.status(200).json({ status: 'ok' }));
 
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // Limit each IP to 20 auth requests per windowMs
+    message: { error: 'Too many authentication attempts, please try again later.' }
+});
+
 import authRoutes from './routes/auth.js';
 import roomRoutes from './routes/rooms.js';
+app.use('/users', authLimiter);
+app.use('/login', authLimiter);
 app.use(authRoutes);
 app.use(roomRoutes);
 
 import { socketAuthMiddleware } from './middleware/socketAuth.js';
-import { joinRoom, leaveRoom, getRoomForSocket } from './socket/roomPresence.js';
-import { getSnapshot } from './socket/whiteboardHandlers.js';
+import { joinRoom, leaveRoom, getRoomForSocket, getOtherSocketsInRoom, getRoomMemberCount } from './socket/roomPresence.js';
+import { getSnapshot, pruneRoomSegments } from './socket/whiteboardHandlers.js';
 import { registerSignalingHandlers } from './socket/signalingHandlers.js';
 import { registerWhiteboardHandlers } from './socket/whiteboardHandlers.js';
 import { registerFileHandlers } from './socket/fileHandlers.js';
@@ -55,11 +67,15 @@ io.use(socketAuthMiddleware);
 io.on('connection', (socket) => {
     socket.on('join-room', async (roomId: unknown) => {
         if (typeof roomId !== 'string' || !roomId) {
-            socket.emit('room-error', 'Invalid room.');
+            socket.emit('room-error', 'Invalid room identifier.');
             return;
         }
 
-        const room = await prisma.room.findUnique({ where: { id: roomId }, select: { id: true } });
+        const room = await prisma.room.findUnique({
+            where: { id: roomId },
+            select: { id: true },
+        });
+
         if (!room) {
             socket.emit('room-error', 'Room not found.');
             return;
@@ -67,6 +83,9 @@ io.on('connection', (socket) => {
 
         socket.join(roomId);
         joinRoom(roomId, socket.id);
+
+        const existingPeers = getOtherSocketsInRoom(roomId, socket.id);
+        socket.emit('room-joined', { roomId, peers: existingPeers });
 
         const snapshot = getSnapshot(roomId);
         if (snapshot.length > 0) {
@@ -86,6 +105,10 @@ io.on('connection', (socket) => {
             socket.to(roomId).emit('user-disconnected', socket.id);
         }
         leaveRoom(socket.id);
+        
+        if (roomId && getRoomMemberCount(roomId) === 0) {
+            pruneRoomSegments(roomId);
+        }
     });
 });
 

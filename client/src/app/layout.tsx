@@ -12,6 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className="h-full antialiased dark"
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-50">{children}</body>
     </html>

@@ -1,55 +1,55 @@
 # Meshly — Client
 
-Next.js 14 (App Router) frontend for the Meshly real-time collaboration app.
+Next.js frontend for real-time video collaboration, multi-peer video mesh, interactive vector whiteboard, and file sharing.
 
 ## Structure
 
 ```
 client/src/
 ├── app/
-│   ├── page.tsx              # Landing page (join or create room)
-│   ├── dashboard/page.tsx    # Authenticated room management
-│   └── room/[roomId]/page.tsx  # In-room experience
+│   ├── page.tsx                 # Landing page (join or create room)
+│   ├── login/page.tsx           # Dedicated login page with dark zinc UI
+│   ├── register/page.tsx        # Dedicated registration page with dark zinc UI
+│   ├── dashboard/page.tsx       # Authenticated room dashboard
+│   └── room/[roomId]/page.tsx   # In-room collaboration experience
 ├── components/
-│   ├── navbar.tsx            # Top nav with login / register modal trigger
-│   ├── auth-modal.tsx        # Login + register form (initialMode prop)
-│   ├── video-grid.tsx        # Multi-participant video tiles
-│   ├── collaboration-sidebar.tsx  # Whiteboard + file share panel
-│   └── bottom-dock.tsx       # Media controls + end meeting
+│   ├── navbar.tsx               # Top navigation with explicit Log In / Sign Up actions
+│   ├── video-grid.tsx           # Multi-participant video tiles with mute indicators
+│   ├── collaboration-sidebar.tsx# Collaborative whiteboard and file manager sidebar
+│   └── bottom-dock.tsx          # Audio, video, screen share, and leave controls
 └── lib/
-    ├── api.ts                # Axios instance with JWT interceptor
-    ├── runtime-config.ts     # Env-var exports
-    ├── room-id.ts            # Room ID normalisation
+    ├── api.ts                   # Axios client with JWT request interceptor
+    ├── runtime-config.ts        # Configuration helper for environment variables
+    ├── room-id.ts               # Room ID parser and normalizer
     └── hooks/
-        ├── useMedia.ts       # Camera stream, video/audio toggles, screen share
-        ├── useSignaling.ts   # Socket.IO connection + multi-peer WebRTC signaling
-        ├── useWhiteboard.ts  # Canvas drawing, DPI scaling, snapshot replay
-        └── useFileShare.ts   # File validation (5 MB / MIME), send, receive
+        ├── useMedia.ts          # Local media stream, toggle tracks, screen share, cleanup
+        ├── useSignaling.ts      # Multi-peer WebRTC mesh with participant ID indexing
+        ├── useWhiteboard.ts     # Normalized vector drawing and snapshot synchronization
+        └── useFileShare.ts      # Strict 5 MB limit, pre-read MIME validation, transfer
 ```
 
 ## Setup
 
 ```bash
 cp .env.example .env.local
-# Set NEXT_PUBLIC_API_URL and NEXT_PUBLIC_SOCKET_URL
 npm install
 npm run dev
 ```
 
-## Environment variables
+## Environment Variables
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | Backend HTTP URL (default: http://localhost:5000) |
-| `NEXT_PUBLIC_SOCKET_URL` | Backend Socket.IO URL (defaults to API_URL) |
-| `NEXT_PUBLIC_TURN_URL` | Optional TURN server URL |
-| `NEXT_PUBLIC_TURN_USERNAME` | Optional TURN username |
-| `NEXT_PUBLIC_TURN_CREDENTIAL` | Optional TURN credential |
+| Variable | Description | Default |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | Backend HTTP API URL | `http://localhost:5000` |
+| `NEXT_PUBLIC_SOCKET_URL` | Backend Socket.IO URL | `http://localhost:5000` |
+| `NEXT_PUBLIC_TURN_URL` | Optional TURN server URL | — |
+| `NEXT_PUBLIC_TURN_USERNAME` | Optional TURN username | — |
+| `NEXT_PUBLIC_TURN_CREDENTIAL`| Optional TURN credential | — |
 
-## Key design decisions
+## Key Architectural Decisions
 
-- **Auth modal mode** — `Navbar` passes `initialMode="login"` or `"register"` explicitly; the modal resets its state on each open via `useEffect`.
-- **Multi-peer video** — `useSignaling` keeps a `Map<socketId, RTCPeerConnection>` and a `Map<socketId, MediaStream>`. `VideoGrid` renders one tile per entry.
-- **Screen share state** — `useMedia.startScreenShare` returns `false` if the browser denies permission so the UI never shows a false active state. The `screenTrack.onended` callback reverts to camera automatically.
-- **File limits** — `useFileShare` rejects files above 5 MB or with disallowed MIME types before reading them, and surfaces a clear error message. The server enforces the same limits independently.
-- **Whiteboard late-join** — The server accumulates draw segments per room and emits `whiteboard-snapshot` when a new socket joins. `useWhiteboard` replays the snapshot immediately.
+- **Explicit Auth Navigation**: Dedicated `/login` and `/register` routes ensure login and registration are separate, bookmarkable actions with clean validation and error feedback.
+- **Multi-Peer WebRTC Mesh**: `useSignaling` maintains `Map<string, RTCPeerConnection>` and `Map<string, MediaStream>` keyed by participant ID. SDP answers and ICE candidates are routed specifically by participant ID with candidate queuing to avoid race conditions.
+- **Display-Independent Whiteboard**: Coordinates are normalized to floats between `0.0` and `1.0`. Vector strokes are stored in memory and re-rendered on canvas resize via `ResizeObserver`, ensuring crisp lines on any screen resolution. The canvas automatically fetches the room snapshot on mount so late joiners see the current drawing state.
+- **File Limits & Error Handling**: `useFileShare` validates file size (<= 5 MB) and MIME types before reading into memory, surfacing immediate error alerts. The server enforces the same checks before broadcasting.
+- **Screen Share State Management**: Catches display media permission denial so the button never stays in a false active state. Automatically handles browser native stop actions and cleans up all screen tracks when leaving the room.

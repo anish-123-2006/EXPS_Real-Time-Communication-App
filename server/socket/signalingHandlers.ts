@@ -1,38 +1,80 @@
 import type { Server, Socket } from 'socket.io';
 import { isInRoom, getRoomForSocket } from './roomPresence.js';
 
-export function registerSignalingHandlers(io: Server, socket: Socket) {
-    socket.on('send-webrtc-offer', ({ targetUserId, callerId, sdpOffer }: {
-        targetUserId: string;
-        callerId: string;
-        sdpOffer: RTCSessionDescriptionInit;
-    }) => {
+interface SignalingOfferPayload {
+    targetUserId: string;
+    sdpOffer: RTCSessionDescriptionInit;
+}
+
+interface SignalingAnswerPayload {
+    targetUserId: string;
+    sdpAnswer: RTCSessionDescriptionInit;
+}
+
+interface SignalingCandidatePayload {
+    targetUserId: string;
+    candidate: RTCIceCandidateInit;
+}
+
+export function registerSignalingHandlers(io: Server, socket: Socket): void {
+    socket.on('send-webrtc-offer', (payload: SignalingOfferPayload) => {
+        if (
+            !payload ||
+            typeof payload.targetUserId !== 'string' ||
+            !payload.sdpOffer ||
+            payload.sdpOffer.type !== 'offer'
+        ) {
+            return;
+        }
+
         const senderRoom = getRoomForSocket(socket.id);
         if (!senderRoom) return;
-        if (!isInRoom(senderRoom, targetUserId)) return;
 
-        io.to(targetUserId).emit('receive-webrtc-offer', { callerId, sdpOffer });
+        if (!isInRoom(senderRoom, socket.id)) return;
+        if (!isInRoom(senderRoom, payload.targetUserId)) return;
+
+        io.to(payload.targetUserId).emit('receive-webrtc-offer', {
+            callerId: socket.id,
+            sdpOffer: payload.sdpOffer,
+        });
     });
 
-    socket.on('send-webrtc-answer', ({ targetUserId, sdpAnswer }: {
-        targetUserId: string;
-        sdpAnswer: RTCSessionDescriptionInit;
-    }) => {
+    socket.on('send-webrtc-answer', (payload: SignalingAnswerPayload) => {
+        if (
+            !payload ||
+            typeof payload.targetUserId !== 'string' ||
+            !payload.sdpAnswer ||
+            payload.sdpAnswer.type !== 'answer'
+        ) {
+            return;
+        }
+
         const senderRoom = getRoomForSocket(socket.id);
         if (!senderRoom) return;
-        if (!isInRoom(senderRoom, targetUserId)) return;
 
-        io.to(targetUserId).emit('receive-webrtc-answer', { sdpAnswer });
+        if (!isInRoom(senderRoom, socket.id)) return;
+        if (!isInRoom(senderRoom, payload.targetUserId)) return;
+
+        io.to(payload.targetUserId).emit('receive-webrtc-answer', {
+            responderId: socket.id,
+            sdpAnswer: payload.sdpAnswer,
+        });
     });
 
-    socket.on('send-ice-candidate', ({ targetUserId, candidate }: {
-        targetUserId: string;
-        candidate: RTCIceCandidateInit;
-    }) => {
+    socket.on('send-ice-candidate', (payload: SignalingCandidatePayload) => {
+        if (!payload || typeof payload.targetUserId !== 'string' || !payload.candidate) {
+            return;
+        }
+
         const senderRoom = getRoomForSocket(socket.id);
         if (!senderRoom) return;
-        if (!isInRoom(senderRoom, targetUserId)) return;
 
-        io.to(targetUserId).emit('receive-ice-candidate', { candidate });
+        if (!isInRoom(senderRoom, socket.id)) return;
+        if (!isInRoom(senderRoom, payload.targetUserId)) return;
+
+        io.to(payload.targetUserId).emit('receive-ice-candidate', {
+            from: socket.id,
+            candidate: payload.candidate,
+        });
     });
 }

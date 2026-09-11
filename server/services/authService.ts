@@ -4,12 +4,18 @@ import prisma from '../db.js';
 
 const jwtSecret = process.env.JWT_SECRET as string;
 
+// Mirrors the regex in authController — defence-in-depth so the service is safe when called directly.
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{2,}$/;
+
 export async function register(name: string, email: string, password: string) {
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedName = name.trim();
 
-    if (!normalizedEmail || !normalizedName || password.length < 8) {
-        throw Object.assign(new Error('Name, a valid email, and a password of at least 8 characters are required.'), { status: 400 });
+    if (!normalizedName || !EMAIL_RE.test(normalizedEmail) || password.length < 8) {
+        throw Object.assign(
+            new Error('Name, a valid email, and a password of at least 8 characters are required.'),
+            { status: 400 }
+        );
     }
 
     const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
@@ -29,7 +35,7 @@ export async function register(name: string, email: string, password: string) {
 export async function login(email: string, password: string) {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (!normalizedEmail || !password) {
+    if (!EMAIL_RE.test(normalizedEmail) || !password) {
         throw Object.assign(new Error('Email and password are required.'), { status: 400 });
     }
 
